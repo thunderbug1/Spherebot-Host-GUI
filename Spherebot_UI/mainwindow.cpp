@@ -29,9 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     qDebug()<<"delete main window";
-    QSettings settings(nameSettingsFile, QSettings::NativeFormat);
-    QString tmp = (ui->portBox->currentText());
-    settings.setValue("portName", tmp);
     delete ui;
 }
 

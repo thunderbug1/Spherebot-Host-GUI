@@ -12,7 +12,6 @@
 #include "txthread.h"
 #include <QScrollBar>
 #include <QTextCursor>
-#include <QSettings>
 #include <QGraphicsSvgItem>
 
 
@@ -58,18 +57,11 @@ private slots:
     void on_sendFileButton_clicked();
     void on_servoFeedrateSlider_valueChanged(int value);
     void on_setDiameterButton_clicked();
-
     void on_undoButton_clicked();
-
     void on_redoButton_clicked();
-
     void on_fileTextEdit_undoAvailable(bool b);
-
     void on_fileTextEdit_redoAvailable(bool b);
-
     void on_restartButton_clicked();
-
-    void on_diameterSlider_valueChanged(int value);
 
 private:
 
