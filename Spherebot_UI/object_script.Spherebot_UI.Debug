@@ -1,0 +1,13 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\spherebot.o
+./debug\txthread.o
+./debug\qextserialport.o
+./debug\qextserialenumerator.o
+./debug\qextserialport_win.o
+./debug\qextserialenumerator_win.o
+./debug\moc_mainwindow.o
+./debug\moc_spherebot.o
+./debug\moc_txthread.o
+);

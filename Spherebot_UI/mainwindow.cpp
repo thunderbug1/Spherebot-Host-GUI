@@ -8,6 +8,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     resetPortList();
 
+
+    //////////////////////////////////////////////////// for .svg display
+    scene = new QGraphicsScene(this);
+    ui->graphicsView->setScene(scene);
+    ////////////////////////////////////////////////////
+
+
     sendState = false;
     rxTimer = new QTimer(this);
 
@@ -43,6 +50,14 @@ void MainWindow::loadFile(const QString &fileName)
 
     statusBar()->showMessage(tr("File loaded"), 2000);
     ui->fileTextEdit->setText(file.readAll());
+
+    scene->clear();
+    QString picPath = QFileInfo(fileName).absoluteFilePath();
+    picPath.chop(5);
+    picPath.append("svg");
+    QGraphicsSvgItem *item = new QGraphicsSvgItem(picPath);
+    scene->addItem(item);
+    ui->graphicsView->setEnabled(true);
 }
 
 bool MainWindow::saveFile(const QString &fileName)
@@ -243,7 +258,6 @@ QString removeComments(QString input);
 void MainWindow::on_fileTextEdit_textChanged()
 {
     ui->saveFileButton->setEnabled(true);
-    ui->outputText->setText(removeComments((ui->fileTextEdit->toPlainText())));
     if(!ui->fileTextEdit->toPlainText().isEmpty())
     {
         setWindowTitle("Spherebot Controll");
@@ -346,5 +360,3 @@ void MainWindow::on_fileTextEdit_redoAvailable(bool b)
     if(b) ui->redoButton->setEnabled(true);
     else ui->redoButton->setEnabled(false);
 }
-
-

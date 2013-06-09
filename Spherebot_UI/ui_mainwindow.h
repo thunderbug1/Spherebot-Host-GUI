@@ -15,6 +15,7 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -114,8 +115,15 @@ public:
     QPushButton *sendFileButton;
     QPushButton *restartButton;
     QProgressBar *fileSendProgressBar;
-    QTextEdit *outputText;
-    QLabel *label_6;
+    QGraphicsView *graphicsView;
+    QWidget *widget;
+    QVBoxLayout *verticalLayout_14;
+    QWidget *widget1;
+    QVBoxLayout *verticalLayout_16;
+    QWidget *widget2;
+    QVBoxLayout *verticalLayout_17;
+    QWidget *widget3;
+    QHBoxLayout *horizontalLayout_15;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -123,7 +131,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(1427, 497);
+        MainWindow->resize(1492, 484);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         controllBox = new QGroupBox(centralWidget);
@@ -374,6 +382,7 @@ public:
 
         horizontalLayout_6->addLayout(verticalLayout_6);
 
+        layoutWidget->raise();
         layoutWidget1 = new QWidget(centralWidget);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
         layoutWidget1->setGeometry(QRect(20, 20, 275, 30));
@@ -562,13 +571,51 @@ public:
 
         verticalLayout_12->addWidget(fileSendProgressBar);
 
-        outputText = new QTextEdit(centralWidget);
-        outputText->setObjectName(QStringLiteral("outputText"));
-        outputText->setGeometry(QRect(1040, 80, 351, 291));
-        label_6 = new QLabel(centralWidget);
-        label_6->setObjectName(QStringLiteral("label_6"));
-        label_6->setGeometry(QRect(1040, 60, 101, 16));
+        graphicsView = new QGraphicsView(centralWidget);
+        graphicsView->setObjectName(QStringLiteral("graphicsView"));
+        graphicsView->setEnabled(false);
+        graphicsView->setGeometry(QRect(1040, 10, 441, 431));
+        widget = new QWidget(centralWidget);
+        widget->setObjectName(QStringLiteral("widget"));
+        widget->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_14 = new QVBoxLayout(widget);
+        verticalLayout_14->setSpacing(6);
+        verticalLayout_14->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
+        verticalLayout_14->setContentsMargins(0, 0, 0, 0);
+        widget1 = new QWidget(centralWidget);
+        widget1->setObjectName(QStringLiteral("widget1"));
+        widget1->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_16 = new QVBoxLayout(widget1);
+        verticalLayout_16->setSpacing(6);
+        verticalLayout_16->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
+        verticalLayout_16->setContentsMargins(0, 0, 0, 0);
+        widget2 = new QWidget(centralWidget);
+        widget2->setObjectName(QStringLiteral("widget2"));
+        widget2->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_17 = new QVBoxLayout(widget2);
+        verticalLayout_17->setSpacing(6);
+        verticalLayout_17->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
+        verticalLayout_17->setContentsMargins(0, 0, 0, 0);
+        widget3 = new QWidget(centralWidget);
+        widget3->setObjectName(QStringLiteral("widget3"));
+        widget3->setGeometry(QRect(0, 0, 2, 2));
+        horizontalLayout_15 = new QHBoxLayout(widget3);
+        horizontalLayout_15->setSpacing(6);
+        horizontalLayout_15->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
+        horizontalLayout_15->setContentsMargins(0, 0, 0, 0);
         MainWindow->setCentralWidget(centralWidget);
+        controllBox->raise();
+        layoutWidget->raise();
+        layoutWidget->raise();
+        layoutWidget->raise();
+        layoutWidget->raise();
+        layoutWidget->raise();
+        graphicsView->raise();
+        layoutWidget->raise();
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
         MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
@@ -613,7 +660,6 @@ public:
         saveFileButton->setText(QApplication::translate("MainWindow", "Save File", 0));
         sendFileButton->setText(QApplication::translate("MainWindow", "Send File", 0));
         restartButton->setText(QApplication::translate("MainWindow", "Restart", 0));
-        label_6->setText(QApplication::translate("MainWindow", "Output File", 0));
     } // retranslateUi
 
 };

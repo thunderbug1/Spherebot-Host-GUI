@@ -13,6 +13,7 @@
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QSettings>
+#include <QGraphicsSvgItem>
 
 
 #define DEFAULTDIAMETER 20
@@ -68,6 +69,8 @@ private slots:
 
     void on_restartButton_clicked();
 
+    void on_diameterSlider_valueChanged(int value);
+
 private:
 
     void loadFile(const QString &fileName);
@@ -83,6 +86,7 @@ private:
     spherebot bot;
     QTimer *rxTimer;
     txThread Transceiver;
+    QGraphicsScene *scene;
 };
 
 #endif // MAINWINDOW_H
