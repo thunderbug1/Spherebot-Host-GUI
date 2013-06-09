@@ -32,9 +32,11 @@ HOW TO:
 
 2.) Start the Spherebot-UI.exe and connect to your Arduino
 
-Warning for custom Firmwares: 	The send file function will only work if the arduino answers
-								each sent command with a message that contains "ok:" so that 
-								the next command is sent.
+Warning for custom Firmwares:
+		
+	The send file function will only work if the arduino answers
+	each sent command with a message that contains "ok:" so that 
+	the next command is sent.
 				
 				
 Additional Notes:
