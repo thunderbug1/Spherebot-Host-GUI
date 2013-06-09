@@ -38,11 +38,12 @@ Warning for custom Firmwares: 	The send file function will only work if the ardu
 				
 Additional Notes:
 
-	The communication is based on the qextserialport library. I tried to make it event-based 
-	but I wasn´t able to get the event that a new line is received firing. So I simply made 
-	the communication not event but polling-based. If someone smarter than me could make it
-	eventbased, it would be awesome :D. But it works polling based pretty good. I would just 
-	be curious to know it for future projects. 
+	The communication is based on the qextserialport library. I tried to make it 
+	event-based but I wasn´t able to get the event that a new line is received 
+	firing. So I simply made the communication not event but polling-based. If 
+	someone smarter than me could make it eventbased, it would be awesome :D. 
+	It works polling based pretty good,	I would just be curious to know how 
+	to do it for future projects. 
 	
 
-Have fun with it ;)
+PS:Have fun with it ;)
