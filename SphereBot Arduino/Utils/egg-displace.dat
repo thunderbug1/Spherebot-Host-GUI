@@ -1,0 +1,25 @@
+# Gnuplot Session
+#
+# Erste Spalte=x, Zweite=y
+# Ei Spitze zeigt nach rechts (positive x)
+#
+# plot "egg-displace.dat" using 1:2 title "Ei"
+#  ==> graph looks like a parabola
+# f(x)=a*x*x + b*x + c
+# fit f(x) "egg-displace.dat" using 1:2 via a,b,c
+# a=0.00795338
+# b=0.0734545
+# c=0.15711
+# plot "egg-displace.dat" using 1:2 title "Ei" with lines, f(x)
+#  ==> fits reasonable well
+-25 3
+-20 2
+-15 1
+-10 0.5
+-5 0.1
+0 0
+5 0.5
+10 1.5
+15 3
+20 5
+25 7
