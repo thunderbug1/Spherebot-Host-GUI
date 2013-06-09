@@ -7,7 +7,7 @@
 #include <QTimer>
 
 #define MAXBUFFERCOUNTER 1
-#define SENDBUFFERINTERVAL 30
+#define SENDBUFFERINTERVAL 5
 
 class txThread : public QThread
 {
