@@ -1,0 +1,61 @@
+Metadata-Version: 1.0
+Name: lxml
+Version: 2.2.4
+Summary: Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API.
+Home-page: http://codespeak.net/lxml
+Author: lxml dev team
+Author-email: lxml-dev@codespeak.net
+License: UNKNOWN
+Download-URL: http://pypi.python.org/packages/source/l/lxml/lxml-2.2.4.tar.gz
+Description: lxml is a Pythonic, mature binding for the libxml2 and libxslt libraries.  It
+        provides safe and convenient access to these libraries using the ElementTree
+        API.
+        
+        It extends the ElementTree API significantly to offer support for XPath,
+        RelaxNG, XML Schema, XSLT, C14N and much more.
+        
+        To contact the project, go to the `project home page
+        <http://codespeak.net>`_ or see our bug tracker at
+        https://launchpad.net/lxml
+        
+        In case you want to use the current in-development version of lxml, you can
+        get it from the subversion repository at http://codespeak.net/svn/lxml/trunk .
+        Running ``easy_install lxml==dev`` will install it from
+        http://codespeak.net/svn/lxml/trunk#egg=lxml-dev
+        
+        
+        After an official release of a new stable series, bug fixes may become
+        available at
+        http://codespeak.net/svn/lxml/branch/lxml-2.2 .
+        Running ``easy_install lxml==2.2bugfix`` will install
+        the unreleased branch state from
+        http://codespeak.net/svn/lxml/branch/lxml-2.2#egg=lxml-2.2bugfix
+        as soon as a maintenance branch has been established.
+        2.2.4 (2009-11-11)
+        ==================
+        
+        Bugs fixed
+        ----------
+        
+        * Static build of libxml2/libxslt was broken.
+        
+        
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Cython
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.3
+Classifier: Programming Language :: Python :: 2.4
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.0
+Classifier: Programming Language :: C
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Classifier: Topic :: Text Processing :: Markup :: XML
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

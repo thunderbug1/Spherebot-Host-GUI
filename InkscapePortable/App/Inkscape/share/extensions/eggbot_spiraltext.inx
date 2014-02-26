@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Spiral Wrapped Text</_name>
+  <id>command.eggbot.contributed.eggbot_spiraltext1</id>
+  <dependency type="executable" location="extensions">hersheydata.py</dependency>
+  <dependency type="executable" location="extensions">simplestyle.py</dependency>
+  <dependency type="executable" location="extensions">eggbot_spiraltext.py</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <param name="tab" type="notebook">
+    <page name="splash" _gui-text="Render Text">
+      <_param name="stuff" type="description">
+This extension renders passages of text as a single, long line
+of text, tilted slightly so that it spirals as it wraps around
+your egg.
+
+Specify the number of times the text should wrap. This value
+need not be a whole number.  The text will then be scaled so
+as to have the length (number of times to wrap) x 3200 pixels.
+</_param>
+      <param name="wrap" type="float" min="1" max="100" _gui-text="Number of times to wrap ">8.5</param>
+      <param name="stretch" type="boolean" _gui-text="Stretch the text horizontally to account for the egg's geometry? ">true</param>
+      <param name="flip" type="boolean" _gui-text="Plot with the egg's bottom at the egg motor? ">false</param>
+      <param name="text" type="string" _gui-text="Text ">How do you drop an egg 2 meters without it breaking? Drop it from 3 meters: it won't break for the first 2!  *   If a rooster laid an egg at the peak of a roof, which side would it roll down? Neither side: roosters don't lay eggs!  *  What's the best day to eat eggs? Fry day  *  What happens when you tickle eggs? They crack up!  *  What sport are eggs good at? Running!  * What kind of jokes do eggs tell? Egg yolks  *  What's an egg's favorite robot? The Egg-Bot!</param>
+<!-- OMELET (2 servings): For a firm omelet, beat 2 eggs with a fork until blended.  Beat in 2 tablespoons cream or milk, 1/4 teaspoon salt, and a pinch of white pepper or paprika.  In a non-stick skillet, melt 3/4 tablespoons butter.  When hot, add the egg mixture and cook over low heat.  With a spatula, lift the edges and, by tilting the skillet, allow the uncooked custard to run underneath the omelet.  When the omelet is cooked to an even consistency, fold over and serve.  <times><i&>Bon appetit!</i></times> -->
+      <param name="fontfamily" type="optiongroup" appearance="minimal"
+	     _gui-text="Starting font ">
+	<_option value="sans">Sans</_option>
+	<_option value="times">Times</_option>
+	<_option value="script">Script</_option>
+      </param>
+    </page>
+    <page name="markup" _gui-text="Markup">
+      <_param name="aboutpage" type="description" xml:space="preserve">
+Simple&#160;markup&#160;may&#160;be&#160;used&#160;to&#160;switch&#160;between&#160;type&#160;faces&#160;(fonts)
+as well as to select bold, italic and emphasized type faces.
+
+Font selection:
+  &lt;sans&gt;Sans serif font&lt;/sans&gt;   (no italics)
+  &lt;times&gt;Font with serifs&lt;/times&gt;
+  &lt;script&gt;Script font&lt;/script&gt;   (italics redundant)
+
+Markup:
+  &lt;b&gt;boldface&lt;/b&gt;  --  Bold text
+  &lt;em&gt;emphasis&lt;/em&gt;  --  Emphasized text
+  &lt;i&gt;italics&lt;/i&gt;  --  Italicized text
+
+Special characters:
+  &lt;  --  Enter " &amp;lt; " in your text
+  &gt;  --  Enter " &amp;gt; " in your text
+  &amp;  --  Enter " &amp;amp; " in your text 
+</_param>
+    </page>
+    <page name="fonts1" _gui-text="Text Fonts">
+      <_param name="aboutpage1" type="description" xml:space="preserve">
+In addition to the sans, times and script type families, other text-oriented
+type faces are available.  For these faces, use of the &lt;b&gt;, &lt;em&gt; and
+&lt;i&gt; markups have no effect and are ignored.
+
+&lt;cyrillic&gt; -- Cyrillic
+&lt;futural&gt;, &lt;futram&gt; -- Sans 1-stroke, bold
+&lt;gothiceng&gt;,&#160;&lt;gothicger&gt;,&#160;&lt;gothicita&gt;&#160;--&#160;Gothic&#160;English,&#160;German,&#160;Italian
+&lt;greek&gt;, &lt;timesg;&gt; -- Greek 1-stroke, medium
+&lt;japanese&gt; -- Japanese
+&lt;scripts&gt;, &lt;scriptc&gt;, &lt;cursive&gt; -- Script&#160;1-stroke,&#160;medium,&#160;alternate
+&lt;timesi&gt;, &lt;timesib&gt; -- Serif medium italic, bold italic
+&lt;timesr&gt;, &lt;timesrb&gt; -- Serif medium, bold
+
+
+
+
+
+</_param>
+</page>
+    <page name="fonts2" _gui-text="Symbol Fonts">
+      <_param name="aboutpage1" type="description" xml:space="preserve">
+In addition to type faces for text, several type faces of symbols
+are also available.  When these type faces are used, the &lt;b&gt;,
+&lt;em&gt; and &lt;i&gt; markups have no effect and are ignored.
+
+&lt;astrology&gt; -- Astrology
+&lt;markers&gt; -- Markers
+&lt;mathlow&gt; -- Math (lower)
+&lt;mathupp&gt; -- Math (upper)
+&lt;meteorology&gt; -- Meteorology
+&lt;music&gt; -- Music
+&lt;symbolic&gt; -- Symbolic
+
+
+
+
+
+
+</_param>
+</page>
+<page name="info" _gui-text="About...">
+<_param name="aboutpage3" type="description" xml:space="preserve">
+This extension renders a passage of text tilted at an angle
+so as to wrap around an egg in a spiral.  To render the text,
+the "Hershey" fonts for plotters is used.  These fonts are
+derived from NBS SP-424 1976-04, "A contribution to computer
+typesetting techniques: Tables of Coordinates for Hershey's
+Repertory of Occidental Type Fonts and Graphic Symbols."
+
+To generte tables of the Herhsey Fonts, see the "Hershey Text"
+extension under the "Render" category of Extensions.
+
+For additional information, please visit:
+
+  www.evilmadscientist.com/go/hershey
+</_param>
+      <_param name="emptyspace3" type="description" xml:space="preserve"> 
+</_param>
+</page>
+</param>
+  <effect needs-live-preview="true" needs-document="no">
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="EggBot Contributed"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command reldir="extensions" interpreter="python">eggbot_spiraltext.py</command>
+  </script>
+</inkscape-extension>

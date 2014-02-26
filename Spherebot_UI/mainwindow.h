@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include "spherebot.h"
-#include "qextserialenumerator.h"
+//#include "qextserialenumerator.h"
+#include <QtSerialPort/QSerialPortInfo>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
@@ -13,11 +14,14 @@
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QGraphicsSvgItem>
+#include <QMessageBox>
 
 
 #define DEFAULTDIAMETER 20
 #define DEFAULTPENUP 35
-#define DEFAULTFEEDRATE 2000
+#define DEFAULTFEEDRATE 3000
+
+#define MAXLISTITEMS 60
 
 namespace Ui {
 class MainWindow;
@@ -26,18 +30,25 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    enum SendStates{Idle=0,Sending=1,Stoped=2};
     
 public:
     void send_data();
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-signals:
-    void receivedLine(QString);
+    void connectTranceiver();
+    void disconnectTranceiver();
+    void LoadSettings();
+    void SaveSettings();
+    void initUI();
+    void setState(SendStates state);
 public slots:
     void receiveData();
-    void sendData(QString data);
+    void sendDataUI(QString data);
     void finishedTransmission();
     void refreshSendProgress(int value);
+    void fitGraphicsView();
 
 private slots:
     void on_connectButton_clicked();
@@ -63,22 +74,34 @@ private slots:
     void on_fileTextEdit_redoAvailable(bool b);
     void on_restartButton_clicked();
 
+    void interpretSentString(QString string);
+
+    void on_sendString_textChanged(const QString &arg1);
+
 private:
 
     void loadFile(const QString &fileName);
+    void loadFileAndSubFiles(const QString &fileName);
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString curFile;
-    int sendState;
+    QString curDir;
+    SendStates sendState;
 
-    QString nameSettingsFile;
     Ui::MainWindow *ui;
-    QextSerialEnumerator serialEnumerator;
-    QList<QextPortInfo> portList;
-    spherebot bot;
+    QSerialPortInfo PortInfo;
+    QList<QSerialPortInfo> portList;
+    spherebot *bot;
     QTimer *rxTimer;
     txThread Transceiver;
     QGraphicsScene *scene;
+    QList<QString> layerFileNames;        //layerFile, layerColorString
+    int layerIndex;
+
+    QMessageBox *nextLayerMsgBox;
+    QMessageBox *restartLayerMsgBox;
+
+    QTimer FitInTimer;          //timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
 };
 
 #endif // MAINWINDOW_H

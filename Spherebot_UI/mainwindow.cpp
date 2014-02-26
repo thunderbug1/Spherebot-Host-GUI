@@ -8,32 +8,102 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     resetPortList();
 
-
     //////////////////////////////////////////////////// for .svg display
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
     ////////////////////////////////////////////////////
 
+    sendState = Idle;
+    this->bot = new spherebot();
 
-    sendState = false;
-    rxTimer = new QTimer(this);
+    layerIndex = 0;
 
-    //connect( bot.port, SIGNAL(readyRead()), this, SLOT(receiveData()) );
-    connect( rxTimer,SIGNAL(timeout()),this,SLOT(receiveData()));
-    connect( &bot, SIGNAL(dataSent(QString)),this, SLOT(sendData(QString)));
-    connect(this,SIGNAL(receivedLine(QString)),&Transceiver,SLOT(checkResponse(QString)));
+    connect( this->bot, SIGNAL(dataSent(QString)),this, SLOT(sendDataUI(QString)));
     connect(&Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
     connect(&Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
+    connect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
+    connect(Transceiver.watchdogTimer, SIGNAL(timeout()),&Transceiver, SLOT(watchdogTimeout()));
+
+    LoadSettings();
+    initUI();
+
+    FitInTimer.setInterval(10);
+    FitInTimer.setSingleShot(true);
+    connect(&FitInTimer,SIGNAL(timeout()),this,SLOT(fitGraphicsView()));
+    FitInTimer.start();
+}
+
+void MainWindow::fitGraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
+{
+    QGraphicsItem *item = ui->graphicsView->items().first();
+    ui->graphicsView->fitInView(item);
+        ui->graphicsView->ensureVisible(item);
+        qDebug()<<"fit in";
+}
+
+void MainWindow::initUI()
+{
+    nextLayerMsgBox = new QMessageBox(QMessageBox::Information,
+                                            "Next Layer",
+                                            "The Layer has been finished!\nplease insert the tool for the layer: " + QString::number(layerIndex),
+                                            QMessageBox::Yes|QMessageBox::No);
+    nextLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
+    nextLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
+
+    restartLayerMsgBox = new QMessageBox(QMessageBox::Information,
+                                            "Restart?",
+                                            "Do you want to restart the print?",
+                                            QMessageBox::Yes|QMessageBox::No);
+    restartLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
+    restartLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
 }
 
 MainWindow::~MainWindow()
 {
     qDebug()<<"delete main window";
+    SaveSettings();
     delete ui;
+}
+///////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::LoadSettings()
+{
+    QSettings settings("thunderbug","SpherebotSettings");
+    settings.beginGroup("settings");
+    curFile = settings.value("fileName", "").toString();
+    curDir = settings.value("currentDirectory", "").toString();
+    if(!curFile.isEmpty())
+    {
+        loadFileAndSubFiles(curFile);
+    }
+    qDebug()<<"load: "<<curFile;
+    QString SavedPortName = settings.value("PortName", "").toString();
+    QSerialPortInfo info;
+    portList = info.availablePorts();
+    for(int i = 0; i < portList.size();i++)
+    {
+        if(QString::compare(portList.at(i).portName(),SavedPortName) == 0)
+        {
+            ui->portBox->setCurrentIndex(i);
+            bot->port->setPortName(SavedPortName);
+            on_connectButton_clicked();
+            ui->sendButton->setEnabled(true);
+        }
+    }
+    settings.endGroup();
+}
+
+void MainWindow::SaveSettings()
+{
+    QSettings settings("thunderbug","SpherebotSettings");
+    settings.beginGroup("settings");
+    settings.setValue("fileName", curFile);
+    settings.setValue("currentDirectory",curDir);
+    settings.setValue("PortName", ui->portBox->currentText());
+    settings.endGroup();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
 void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -44,21 +114,69 @@ void MainWindow::loadFile(const QString &fileName)
                              .arg(file.errorString()));
         return;
     }
-
+    curDir = QFileInfo(fileName).absoluteFilePath();
     statusBar()->showMessage(tr("File loaded"), 2000);
     ui->fileTextEdit->setText(file.readAll());
 
     scene->clear();
     QString picPath = QFileInfo(fileName).absoluteFilePath();
-    picPath.chop(5);
+    picPath.chop(5);        //cut .gcode
     picPath.append("svg");
     QGraphicsSvgItem *item = new QGraphicsSvgItem(picPath);
     scene->addItem(item);
     ui->graphicsView->setEnabled(true);
+    ui->graphicsView->fitInView(item);
+
+    if(!ui->fileTextEdit->toPlainText().isEmpty())
+    {
+        setWindowTitle("Spherebot Control      File: " + fileName);
+        ui->fileName->setText(QFileInfo(fileName).fileName());
+    }
+    else ui->sendButton->setEnabled(false);
 }
 
+
+void MainWindow::loadFileAndSubFiles(const QString &fileName)       //SubFiles = other layers of the print
+
+{
+    loadFile(fileName);
+    layerFileNames.clear();
+    layerFileNames.append(fileName);
+    //search for other layer files
+    QStringList nameParts = fileName.split("_");
+    QString layerNumberString = nameParts.last();
+    layerNumberString.chop(6);      //remove .gcode
+    int layerNumber = layerNumberString.toInt();
+    nameParts.removeLast();
+    QString mainName = nameParts.join("");
+    QFile testFile;
+    if(layerNumber != 0)   //Conversion successfully
+    {
+        qDebug()<<"layerNumber is unequal 0";
+        while(1)
+        {
+            qDebug()<<"loop: "<<layerNumber;
+            layerNumber++;
+            QString testFileName = mainName + "_" + QString::number(layerNumber) + ".gcode";
+            testFile.setFileName(testFileName);
+            qDebug()<<"testFileName: "<<testFile.fileName();
+            if(testFile.exists())
+            {
+                layerFileNames.append(testFileName);
+            }
+            else
+            {
+                qDebug()<<"exit";
+                break;
+            }
+        }
+    }
+    qDebug()<<layerFileNames;
+    curFile = fileName;
+}
+
+
 bool MainWindow::saveFile(const QString &fileName)
-//! [44] //! [45]
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -68,7 +186,6 @@ bool MainWindow::saveFile(const QString &fileName)
                              .arg(file.errorString()));
         return false;
     }
-
     QTextStream out(&file);
 
     out<<ui->fileTextEdit->toPlainText();
@@ -78,15 +195,19 @@ bool MainWindow::saveFile(const QString &fileName)
 
 void MainWindow::receiveData()
 {
-    if(bot.port->bytesAvailable())
+    if(bot->port->canReadLine())
     {
-        //qDebug()<< "Read line";
-        QString line =bot.port->readLine(1024);
+        QString line = bot->port->readLine(1024);
         line.chop(1);
-        emit receivedLine(line);
-        ui->rxList->insertItem(0,line);
+        if(line != "")
+        {
+            ui->rxList->insertItem(0,line);
+            delete ui->rxList->item(MAXLISTITEMS);
+        }
     }
 }
+
+
 
 void MainWindow::refreshSendProgress(int value)
 {
@@ -95,22 +216,103 @@ void MainWindow::refreshSendProgress(int value)
 
 void MainWindow::finishedTransmission()
 {
+    disconnectTranceiver();
     ui->sendFileButton->setText("Send File");
     ui->controllBox->setEnabled(true);
     ui->fileSendProgressBar->setEnabled(false);
+    ui->loadFileButton->setEnabled(true);
     statusBar()->showMessage(tr("File successfully sent"));
-    sendState = false;
+    sendState = Idle;
+    if(layerFileNames.size() > 1)
+    {
+        layerIndex++;
+    }
+    qDebug()<<"layerIndex: "<<layerIndex;
+    qDebug()<<"layerFileNames: "<<layerFileNames;
+    qDebug()<<"layerFileNames.size(): "<<layerFileNames.size();
+    if(layerIndex < layerFileNames.size())      //next layer
+    {
+        if (QMessageBox::Yes == nextLayerMsgBox->exec())
+        {
+            if(layerFileNames.size() >= layerIndex)
+            {
+                loadFile(layerFileNames.at(layerIndex));
+                on_sendFileButton_clicked();
+            }
+            else
+            {
+                qDebug()<<"Warning: tried to loadFile to start next layer but layerIndex is too high!";
+            }
+        }
+    }
+    else //restart print?
+    {
+        layerIndex = 0;
+        if(!layerFileNames.isEmpty())
+        {
+            loadFile(layerFileNames.at(layerIndex));
+        }
+        else
+        {
+            qDebug()<<"Warning: tried to loadFile to restart print but the layerFileNames are empty!";
+        }
+        if (QMessageBox::Yes == restartLayerMsgBox->exec())
+        {
+            on_sendFileButton_clicked();
+        }
+    }
 }
 
+void MainWindow::interpretSentString(QString string)
+{
+    if(this->sendState == 1)        //if currently sending
+    {
+        QStringList list = string.split(" ");
+        //qDebug()<<"string is : "<<string;
+        for(int i = 0;i<list.size();i++)
+        {
+            if(!list[i].isEmpty())
+            {
+                if (list[i].startsWith('X'))
+                {
+                    //qDebug()<<"setting eggslidervalue: ";
+                    ui->eggSlider->setValue(list[i].remove(0,1).toDouble());
+                }
+                else if (list[i].startsWith('Y'))
+                {
+                    //qDebug()<<"setting penslidervalue";
+                    ui->penSlider->setValue(list[i].remove(0,1).toDouble());
+                }
+                else if (list[i].startsWith('M'))
+                {
+                    if(list[i].remove(0,1) == "300")
+                    {
+                        //qDebug()<<"setting servoSlider";
+                        ui->servoSlider->setValue(list[i+1].remove(0,1).toDouble());
+                    }
+                    else if(list[i].remove(0,1) == "400")
+                        {
+                       // qDebug()<<"setting diameterSlider";
+                        ui->diameterSlider->setValue(list[i+1].remove(0,1).toDouble());
+                        }
+                }
+                else if (list[i].startsWith('F'))
+                {
+                    //qDebug()<<"setting servoFeedrateSlider";
+                    ui->servoFeedrateSlider->setValue(list[i].remove(0,1).toDouble());
+                }
+            }
+        }
+    }
+}
 ///////////////////////////////////////////////////////////////////
 
 void MainWindow::on_connectButton_clicked()
 {
-    if(bot.isConnected())
+    if(bot->isConnected())
     {
         //disconnect
-        rxTimer->stop();
-        bot.disconnectWithBot();
+        bot->disconnectWithBot();
         ui->connectButton->setChecked(false);
         ui->connectButton->setText("Connect");
         ui->controllBox->setEnabled(false);
@@ -123,14 +325,14 @@ void MainWindow::on_connectButton_clicked()
         ui->servoSlider->setValue(DEFAULTPENUP);
         ui->FeedratespinBox->setValue(DEFAULTFEEDRATE);
         ui->fileSendProgressBar->setValue(0);
-        sendState = 0;
+        sendState = Idle;
         ui->sendFileButton->setText("Send File");
+        ui->sendFileButton->setEnabled(false);
     }
-    else if(bot.connectWithBot(ui->portBox->currentText()))
+    else if(bot->connectWithBot(ui->portBox->currentText()))
     {
         //successfully connected
-        rxTimer->start(2);
-        qDebug()<<"Start Timer";
+        connect( this->bot->port, SIGNAL(readyRead()), this, SLOT(receiveData()));
         ui->connectButton->setChecked(true);
         ui->controllBox->setEnabled(true);
         ui->portBox->setEnabled(false);
@@ -144,14 +346,14 @@ void MainWindow::on_connectButton_clicked()
     }
 }
 
-
 void MainWindow::resetPortList()
 {
-    portList =serialEnumerator.getPorts();
+    QSerialPortInfo info;
+    portList = info.availablePorts();
     ui->portBox->clear();
     for(int i=0;i<portList.size();i++)
     {
-        ui->portBox->addItem(portList[i].portName);
+        ui->portBox->addItem(portList[i].portName());
     }
 }
 
@@ -160,87 +362,108 @@ void MainWindow::on_resetButton_clicked()
     resetPortList();
 }
 
-void MainWindow::sendData(QString data)
+void MainWindow::sendDataUI(QString data)
 {
     ui->txList->insertItem(0,data);
+     delete ui->txList->item(MAXLISTITEMS);
 }
 
 void MainWindow::on_sendString_editingFinished()
 {
-    if(!bot.send(ui->sendString->text()))
+    if(!ui->sendString->text().isEmpty())
     {
-        //sendData(ui->sendString->text());
-    }
-    else
-    {
-        qDebug()<<bot.port->errorString();
-        sendData("Error while sending Data!");
+        if(!bot->send(ui->sendString->text()))
+        {
+            qDebug()<<bot->port->errorString();
+            sendDataUI("Error while sending Data!");
+        }
     }
 }
 
 void MainWindow::on_sendButton_clicked()
 {
-    if(!bot.send(ui->sendString->text()))
-    {
-        //sendData(ui->sendString->text());
-    }
-    else
-    {
-        qDebug()<<bot.port->errorString();
-        //sendData("Error while sending Data!");
-    }
+    on_sendString_editingFinished();
+    ui->sendString->setText("");
+    ui->sendButton->setEnabled(false);
 }
 
 void MainWindow::on_servoSlider_sliderMoved(int position)
 {
-    //ui->servospinBox->setValue(position);
+    if(sendState != Sending)
+    {
     QString tmp = ("M300 S" + QString::number(position)+"\n");
-    bot.send(tmp);
-    //sendData(tmp);
+    bot->send(tmp);
+    }
 }
 
 void MainWindow::on_servospinBox_valueChanged(int arg1)
 {
+    if(sendState != Sending)
+    {
     ui->servoSlider->setValue(arg1);
     QString tmp = ("M300 S" + QString::number(arg1)+"\n");
-    bot.send(tmp);
+    bot->send(tmp);
+    }
 }
 
 void MainWindow::on_penRotationBox_valueChanged(int arg1)
 {
+    if(sendState != Sending)
+    {
     QString tmp = ("G1 Y" + QString::number((double)arg1));
-    bot.send(tmp);
+    bot->send(tmp);
     ui->penSlider->setValue(arg1);
+    }
 }
 
 void MainWindow::on_penSlider_valueChanged(int value)
 {
+    if(sendState != Sending)
+    {
     ui->penRotationBox->setValue(value);
+    }
 }
 
 void MainWindow::on_eggSlider_valueChanged(int value)
 {
+    if(sendState != Sending)
+    {
     ui->eggRotationBox->setValue(value);
+    }
 }
 
 void MainWindow::on_eggRotationBox_valueChanged(int arg1)
 {
+    if(sendState != Sending)
+    {
     QString tmp = ("G1 X" + QString::number((double)arg1)+"\n");
-    bot.send(tmp);
+    bot->send(tmp);
     ui->eggSlider->setValue(arg1);
+    }
 }
 
 void MainWindow::on_loadFileButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty())
-        loadFile(fileName);
-    if(!ui->fileTextEdit->toPlainText().isEmpty())
+    if(sendState != Stoped)
     {
-        setWindowTitle("Spherebot Controll      File: " + fileName);
-        ui->fileName->setText(QFileInfo(fileName).fileName());
+        QString fileName;
+        if(!curDir.isEmpty())
+        {
+            fileName = QFileDialog::getOpenFileName(this,"",curDir);
+        }
+        else
+        {
+            fileName = QFileDialog::getOpenFileName(this);
+        }
+        if (!fileName.isEmpty())
+        {
+            loadFileAndSubFiles(fileName);
+        }
     }
-    else ui->sendButton->setEnabled(false);
+    else
+    {
+        setState(Idle);
+    }
 }
 
 
@@ -250,90 +473,165 @@ void MainWindow::on_saveFileButton_clicked()
     ui->saveFileButton->setEnabled(false);
 }
 
-QString removeComments(QString input);
-
 void MainWindow::on_fileTextEdit_textChanged()
 {
-    ui->saveFileButton->setEnabled(true);
     if(!ui->fileTextEdit->toPlainText().isEmpty())
     {
         setWindowTitle("Spherebot Controll");
         ui->fileName->setText("");
-        if(bot.isConnected()) ui->sendFileButton->setEnabled(true);
+        if(bot->isConnected()) ui->sendFileButton->setEnabled(true);
         else ui->sendButton->setEnabled(false);
     }
 }
 
 
+void MainWindow::connectTranceiver()
+{
+    connect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
+}
+
+void MainWindow::disconnectTranceiver()
+{
+    disconnect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
+}
+
+void MainWindow::setState(MainWindow::SendStates state)
+{
+    switch(state)
+    {
+    case(Idle):
+        switch(sendState)
+        {
+        case(Stoped):
+            disconnectTranceiver();
+            ui->sendFileButton->setText("Send File");
+            ui->loadFileButton->setText("Load File");
+            ui->restartButton->setEnabled(false);
+            ui->controllBox->setEnabled(true);
+            ui->fileSendProgressBar->setEnabled(false);
+            ui->loadFileButton->setEnabled(true);
+            sendState = Idle;
+            break;
+        case(Sending):
+            //not allowed to set to idle while sending. A stop is necessary
+            break;
+        }
+        break;
+    case(Sending):
+        switch(sendState)
+        {
+            case(Idle):     //start sending
+                sendState = Sending;
+                connectTranceiver();
+                ui->controllBox->setEnabled(false);
+                ui->fileSendProgressBar->setEnabled(true);
+                ui->sendFileButton->setText("Stop");
+                ui->sendString->setEnabled(false);
+                ui->controllBox->setEnabled(false);
+                ui->sendButton->setEnabled(false);
+                ui->sendString->setEnabled(false);
+                ui->loadFileButton->setEnabled(false);
+                Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
+                Transceiver.run();
+                statusBar()->showMessage(tr("Sending File"));
+                break;
+            case(Stoped):   //continue
+                sendState = Sending;
+                connectTranceiver();
+                Transceiver.watchdogTimer->start();
+                this->Transceiver.sendNext();
+                ui->loadFileButton->setEnabled(false);
+                ui->restartButton->setEnabled(false);
+                ui->sendFileButton->setText("Stop");
+                ui->controllBox->setEnabled(false);
+                ui->sendButton->setEnabled(false);
+                ui->sendString->setEnabled(false);
+                statusBar()->showMessage(tr("Sending File"));
+                break;
+        }
+        break;
+    case(Stoped):
+        switch(sendState)
+        {
+            case(Idle):
+
+                break;
+            case(Sending):
+                sendState = Stoped;
+                disconnectTranceiver();
+                Transceiver.watchdogTimer->stop();
+                ui->restartButton->setEnabled(true);
+                ui->sendFileButton->setText("Continue");
+                ui->loadFileButton->setText("Abort");   //used as Abort button
+                ui->loadFileButton->setEnabled(true);
+                ui->controllBox->setEnabled(true);
+                ui->sendButton->setEnabled(true);
+                ui->sendString->setEnabled(true);
+                statusBar()->showMessage(tr("Stoped sending File"));
+                //vScrollBar->setSliderPosition(Transceiver.getLineCounter());
+                //ui->fileTextEdit->setVerticalScrollBar();
+                break;
+        }
+        break;
+    }
+}
+
 void MainWindow::on_sendFileButton_clicked()
 {
-    QScrollBar *vScrollBar = ui->fileTextEdit->verticalScrollBar();
-    qDebug()<<"enter button code";
+   // QScrollBar *vScrollBar = ui->fileTextEdit->verticalScrollBar();
     switch(sendState)
     {
     case 0:         //start to send
         qDebug()<<"start sending";
-        sendState = 1;
-        ui->controllBox->setEnabled(false);
-        ui->fileSendProgressBar->setEnabled(true);
-        ui->sendFileButton->setText("Stop");
-        ui->controllBox->setEnabled(false);
-        ui->sendButton->setEnabled(false);
-        Transceiver.set(ui->fileTextEdit->toPlainText(),this->bot);
-        qDebug()<<"tx is set";
-        Transceiver.run();
-        statusBar()->showMessage(tr("Sending File"));
+        setState(Sending);
         break;
     case 1:       //stop the print
         qDebug()<< "You have stoped sending";
-        sendState = 2;
-        ui->restartButton->setEnabled(true);
-        ui->sendFileButton->setText("Continue");
-        ui->controllBox->setEnabled(true);
-        ui->sendButton->setEnabled(true);
-        vScrollBar->setValue(Transceiver.getLineCounter());
-        Transceiver.checkSendBufferTimer->stop();
+        setState(Stoped);
         break;
     case 2:      //continue
-        sendState = 1;
-        Transceiver.checkSendBufferTimer->start(SENDBUFFERINTERVAL);
-        ui->restartButton->setEnabled(false);
-        ui->sendFileButton->setText("Stop");
-        ui->controllBox->setEnabled(false);
-        ui->sendButton->setEnabled(false);
+        setState(Sending);
         break;
     }
-
-    qDebug()<<"leave button code";
 }
 
 void MainWindow::on_restartButton_clicked()
 {
-    sendState = 1;
+    sendState = Sending;
+    Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
+    connectTranceiver();
     ui->controllBox->setEnabled(false);
     ui->fileSendProgressBar->setEnabled(true);
     ui->sendFileButton->setText("Stop");
+    ui->loadFileButton->setText("Load File");
     ui->controllBox->setEnabled(false);
     ui->sendButton->setEnabled(false);
-    Transceiver.set(ui->fileTextEdit->toPlainText(),this->bot);
-    qDebug()<<"tx is set";
+    ui->sendString->setEnabled(false);
+    ui->loadFileButton->setEnabled(false);
+    Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
     Transceiver.run();
     statusBar()->showMessage(tr("Sending File"));
 }
 
 void MainWindow::on_servoFeedrateSlider_valueChanged(int value)
 {
-    QString tmp = ("G1 F" + QString::number(value)+"\n");
-    bot.send(tmp);
+    if(sendState != Sending)
+    {
+        QString tmp = ("G1 F" + QString::number(value)+"\n");
+        bot->send(tmp);
+    }
 }
 
 void MainWindow::on_setDiameterButton_clicked()
 {
-    QString tmp = ("M400 S" + QString::number(ui->diameterSlider->value())+"\n");
-    bot.send(tmp);
-    tmp.clear();
-    tmp = ("M401 S" + QString::number(ui->diameterSlider->value())+"\n");
-    bot.send(tmp);
+    if(sendState != Sending)
+    {
+        QString tmp = ("M400 S" + QString::number(ui->diameterSlider->value())+"\n");
+        bot->send(tmp);
+        tmp.clear();
+        tmp = ("M401 S" + QString::number(ui->diameterSlider->value())+"\n");
+        bot->send(tmp);
+    }
 }
 
 void MainWindow::on_undoButton_clicked()
@@ -348,6 +646,7 @@ void MainWindow::on_redoButton_clicked()
 
 void MainWindow::on_fileTextEdit_undoAvailable(bool b)
 {
+    ui->saveFileButton->setEnabled(true);
     if(b) ui->undoButton->setEnabled(true);
     else ui->undoButton->setEnabled(false);
 }
@@ -356,4 +655,16 @@ void MainWindow::on_fileTextEdit_redoAvailable(bool b)
 {
     if(b) ui->redoButton->setEnabled(true);
     else ui->redoButton->setEnabled(false);
+}
+
+void MainWindow::on_sendString_textChanged(const QString &arg1)
+{
+    if(!arg1.isEmpty())
+    {
+        ui->sendButton->setEnabled(true);
+    }
+    else
+    {
+        ui->sendButton->setEnabled(false);
+    }
 }

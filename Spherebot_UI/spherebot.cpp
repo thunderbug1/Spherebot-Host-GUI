@@ -3,15 +3,12 @@
 spherebot::spherebot(QObject *parent) :
     QObject(parent)
 {
-    port = NULL;
+    port = new QSerialPort();
     port_connected = false;
 }
 
-bool spherebot::connectWithBot(QString portName)
+bool spherebot::connectWithBot()
 {
-    port = new QextSerialPort(portName , QextSerialPort::Polling); //we create the port
-
-
     port->open(QIODevice::ReadWrite); //we open the port
     if(!port->isOpen())
     {
@@ -20,16 +17,19 @@ bool spherebot::connectWithBot(QString portName)
     }
 
     //we set the port properties
-    port->setBaudRate(BAUD115200);//modify the port settings on your own
-    port->setFlowControl(FLOW_OFF);
-    port->setParity(PAR_NONE);
-    port->setDataBits(DATA_8);
-    port->setStopBits(STOP_1);
-    port->setRts( true );
-    port->setDtr( true );
-    //port->setQueryMode( QextSerialPort::EventDriven );
+    port->setBaudRate(QSerialPort::Baud115200);//modify the port settings on your own
+    port->setFlowControl(QSerialPort::NoFlowControl);
+    port->setParity(QSerialPort::NoParity);
+    port->setDataBits(QSerialPort::Data8);
+    port->setStopBits(QSerialPort::OneStop);
     port_connected = true;
     return 1;
+}
+
+bool spherebot::connectWithBot(QString portName)
+{
+    port->setPortName(portName);
+    return connectWithBot();
 }
 
 bool spherebot::disconnectWithBot()
@@ -46,13 +46,12 @@ bool spherebot::send(QString cmd)
     {
         port->flush();
         if(cmd[cmd.size()-1] != '\n') cmd.append("\n");
-        qDebug()<<"Sending: " + cmd;
+        //qDebug()<<"Sending: " + cmd;
         port->write((const char*)cmd.toUtf8(),cmd.length());
-
     }
     else
     {
-        qDebug()<<port->errorString();
+        qDebug()<<port->errorString()<<" port is not open";
         return false;
     }
     cmd.chop(1);

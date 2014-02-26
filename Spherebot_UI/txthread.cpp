@@ -3,12 +3,12 @@
 txThread::txThread()
 {
     lineCounter = 0;
-    bufferCounter = 0;
-    checkSendBufferTimer = new QTimer(this);
-    connect(checkSendBufferTimer,SIGNAL(timeout()),this,SLOT(checkBuffer()));
-}
 
-txThread::~txThread()
+    watchdogTimer = new QTimer();
+    watchdogTimer->setInterval(1000);       //because of sudden stops during sending a file
+}                                           //I use a watchdogTimer to force sending the next
+                                            //command if there is a too long pause of communication
+txThread::~txThread()                       //This is only a workaround!!
 {
 
 }
@@ -40,7 +40,6 @@ QString removeComments(QString intext)
 void txThread::set(QString intextfile,spherebot &uibot)
 {
     lineCounter = 0;
-    bufferCounter = 0;
     textfile.clear();
     textfile.append(removeComments(intextfile));
     qDebug()<<"The textfile String is: \n\n" + textfile + "\n\nENDE\n\n";
@@ -52,49 +51,42 @@ void txThread::run()
 {
     qDebug()<<"entering run";
     lineCounter = 0;
-    bufferCounter = 0;
-    drawCounter = 0;
-    checkSendBufferTimer->start(SENDBUFFERINTERVAL);
+    watchdogTimer->start();
+    sendNext();
 }
 
-void txThread::checkBuffer()
+void txThread::sendNext()
 {
-    //qDebug()<<"buffer check timer timeout";
+    QString tmp;
     if(lineCounter <= lineMax)
     {
-        //qDebug()<<"linecounter: " + QString::number(lineCounter);
-        qDebug()<<"buffercounter: " + QString::number(bufferCounter);
-        //qDebug()<<"drawcounter: " + QString::number(drawCounter);
-        if(bufferCounter <= MAXBUFFERCOUNTER)
-        {
-            QString tmp = textfile.section("\n",lineCounter,lineCounter);
-            tmp.append("\n");
-            bot->send(tmp);
-            double progress= (double) lineCounter/(double)lineMax;
-            emit progressChanged(progress*100);
-            bufferCounter++;
-            lineCounter++;
-        }
+        tmp = textfile.section("\n",lineCounter,lineCounter);
+        tmp.append("\n");
+        bot->send(tmp);
+        double progress= (double) lineCounter/(double)lineMax;
+        emit progressChanged(progress*100);
+        lineCounter++;
     }
     else
     {
-        checkSendBufferTimer->stop();
+        watchdogTimer->stop();
         emit fileTransmitted();
+        return;
     }
+    watchdogTimer->start();
+    if(tmp.contains("G4"))
+    {
+        msleep(300);
+    }
+}
+
+void txThread::watchdogTimeout()
+{
+    qDebug()<<"watchdogTimeout";
+    sendNext();
 }
 
 int txThread::getLineCounter()
 {
     return lineCounter;
-}
-
-void txThread::checkResponse(QString msg)
-{
- //   if(msg.count("G") > 1 || msg.count("M") > 1)
-    if(msg.contains("ok"))
-   {
-        qDebug()<<"processed: " + msg + "\n";
-        drawCounter++;
-        bufferCounter--;
-   }
 }

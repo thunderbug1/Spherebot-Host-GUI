@@ -1,0 +1,63 @@
+#!/bin/bash
+
+echo -e "\n##### Extension Tests #####"
+
+cd "$(dirname "$0")"
+
+has_py_coverage=false
+py_cover_files=$( mktemp )
+failed_tests=$( mktemp )
+
+if coverage.py -e >/dev/null 2>/dev/null; then
+  has_py_coverage=true
+  cover_py_cmd=coverage.py
+else
+  if coverage -e >/dev/null 2>/dev/null; then
+    has_py_coverage=true
+    cover_py_cmd=coverage
+  fi
+fi
+
+#if $has_py_coverage; then
+#  $cover_py_cmd -e
+#fi
+
+function run_py_test() {
+  echo -e "\n>> Testing $1"
+  if $has_py_coverage; then
+    if ! $cover_py_cmd -x "$1.test.py"; then
+      echo "$1" >> $failed_tests
+    fi
+    echo "../$1.py" >> $py_cover_files
+  else
+    if ! python "$1.test.py"; then
+      echo "$1" >> $failed_tests
+    fi
+  fi
+  return 0
+}
+
+tot_FAILED=0
+
+for testFile in *.test.py; do
+  if ! run_py_test $( echo $testFile | sed -r 's/^([^.]+)..*$/\1/' ); then
+    let tot_FAILED++
+  fi
+done
+
+if $has_py_coverage; then
+  echo -e "\n>> Coverage Report:"
+  cat $py_cover_files | xargs $cover_py_cmd -r
+fi
+
+fail=false
+if ! test -z "$( cat $failed_tests )"; then
+  echo -e "\nFailed $( cat $failed_tests | wc -l ) of $( ls -1 *.test.py | wc -l ) extension tests:"
+  cat $failed_tests | sed 's/^/  - /'
+  fail=true
+fi
+echo ""
+
+rm $py_cover_files $failed_tests
+
+$fail && exit 1

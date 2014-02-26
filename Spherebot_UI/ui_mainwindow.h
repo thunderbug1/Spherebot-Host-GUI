@@ -243,7 +243,7 @@ public:
         FeedratespinBox->setObjectName(QStringLiteral("FeedratespinBox"));
         FeedratespinBox->setMinimum(10);
         FeedratespinBox->setMaximum(6000);
-        FeedratespinBox->setValue(2000);
+        FeedratespinBox->setValue(3000);
 
         verticalLayout_13->addWidget(FeedratespinBox);
 

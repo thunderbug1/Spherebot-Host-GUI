@@ -1,24 +1,40 @@
+﻿
+Copyright 2014 by Alexander Balasch http://coolrobotprojects.blogspot.co.at/
 
-Copyright 2011 by Alexander Balasch http://coolrobotprojects.blogspot.co.at/
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. 
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/4.0/.
 
 this project has been inspired by:
 
 http://pleasantsoftware.com/developer/3d/spherebot/
 
 ///////////////////////////////////////////////////////////////////////////////////
+
+Old Version: https://github.com/thunderbug1/Spherebot-Host-GUI
+
+Features of 2.0:
+
+-Complete rework of the internal Communication, now based on the Qt-internal SerialPort library.
+ No need for the QextSeriallibrary any more. The communication is now event-based and not polling-based
+ what reduces cpu-usage enormously.
+
+-Support for Multilayered Prints:
+		name your layers : <layer1name>_1.gcode
+				   <layer2name>_2.gcode
+				   ...
+	After each layer you will be promted to change the pen for the next layer. 
+	Just press OK and it will automatically load the next layer and start printing.
+	In the end you will be asked if you want to restart the print.
+
+-persistence of loaded file and connected port
+
+-General improvements and Bugfixes
+
+-Optimisations of the firmware
+
+
+-The attached Version of inkscape portable already comes with the needed eggbot-extensions installed.
+ Simply run inkscape.exe
 
 HOW TO:
 
@@ -30,7 +46,7 @@ HOW TO:
 
 	(You will also have to redefine your pins accordingly to your electronics design)
 
-2.) Start the Spherebot-UI.exe and connect to your Arduino
+2.) Start the Spherebot-UI.exe int the /bin folder and connect to your Arduino
 
 Warning for custom Firmwares:
 		
@@ -38,15 +54,6 @@ Warning for custom Firmwares:
 	each sent command with a message that contains "ok:" so that 
 	the next command is sent.
 				
-				
-Additional Notes:
 
-	The communication is based on the qextserialport library. I tried to make it 
-	event-based but I wasn´t able to get the event that a new line is received 
-	firing. So I simply made the communication not event but polling-based. If 
-	someone smarter than me could make it eventbased, it would be awesome :D. 
-	It works polling based pretty good,	I would just be curious to know how 
-	to do it for future projects. 
-	
 
 PS:Have fun with it ;)

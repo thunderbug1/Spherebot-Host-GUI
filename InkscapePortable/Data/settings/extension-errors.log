@@ -1,0 +1,57 @@
+Erweiterung »Dia Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: extensions
+  Zeichenkette: dia2svg.sh
+  Beschreibung: Das Skript »dia2svg.sh« sollte in Ihrer Inkscape-Installation vorhanden sein. Wenn Sie es nicht haben, ist wahrscheinlich etwas mit Ihrer Inkscape-Installation nicht in Ordnung.
+
+Erweiterung »Dia Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: dia
+  Beschreibung: Um Dia-Dateien zu importieren, muss Dia selbst installiert sein. Sie können Dia von http://live.gnome.org/Dia herunterladen.
+
+Erweiterung »DXF Output«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: extensions
+  Zeichenkette: ps2dxf.sh
+
+Erweiterung »DXF Output«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: pstoedit
+  Beschreibung: pstoedit muss installiert sein, um diese Funktion nutzen zu können. Siehe http://www.pstoedit.net/pstoedit
+
+Erweiterung »LaTeX formula«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: pstoedit
+
+Erweiterung »XFIG Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: fig2dev
+
+Erweiterung »GIMP XCF«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: gimp
+
+Erweiterung »Sketch Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: extensions
+  Zeichenkette: sk2svg.sh
+
+Erweiterung »Sketch Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
+Abhängigkeit:
+  Typ: executable
+  Speicherort: Pfad
+  Zeichenkette: skconvert
+

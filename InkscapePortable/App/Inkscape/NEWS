@@ -1,0 +1,26 @@
+Inkscape 0.48.4 is a stability and bugfix release with an important security
+bugfix. For a complete list of bugs fixed in 0.48.4, see the Launchpad
+milestone page.
+
+Important bugfixes
+
+  • A security bug was fixed.
+  • Some major bugs causing crashes when using extensions or the filters editor
+    were fixed.
+  • A bug affecting the outline mode was fixed.
+  • Inkscape can now be built on platforms with new versions of the Poppler
+    library (v0.20 and higher). (bug #1005565)
+  • Relative path names can be used again on the command line for EPS/PS and
+    other file types handled by script extensions (bug #695120)
+
+Translations
+
+  • Basque, Belarusian, French, Ukrainian: UI translation updated
+
+Known issues
+
+  • Not as awesome as 0.49.
+
+
+For information on prior releases, please see:
+    http://wiki.inkscape.org/wiki/index.php/Inkscape
