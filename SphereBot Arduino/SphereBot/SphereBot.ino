@@ -35,7 +35,7 @@
 #include "StepperModel.h"
 
 
-#define TIMER_DELAY 256
+#define TIMER_DELAY 1024
 
 #define VERSIONCODE "Spherebot 2.0"
 /*
