@@ -8,7 +8,12 @@ txThread::txThread()
     watchdogTimer->setInterval(1000);       //because of sudden stops during sending a file
 }                                           //I use a watchdogTimer to force sending the next
                                             //command if there is a too long pause of communication
-txThread::~txThread()                       //This is only a workaround!!
+                                            //This is only a workaround!!
+                                            //EDIT: I found out that this sometimes happens because of timing issues in the firmware.
+
+
+
+txThread::~txThread()
 {
 
 }
@@ -51,7 +56,9 @@ void txThread::run()
 {
     qDebug()<<"entering run";
     lineCounter = 0;
+#ifdef Watchdog
     watchdogTimer->start();
+#endif
     sendNext();
 }
 
@@ -73,7 +80,9 @@ void txThread::sendNext()
         emit fileTransmitted();
         return;
     }
+#ifdef Watchdog
     watchdogTimer->start();
+#endif
     if(tmp.contains("G4"))
     {
         msleep(300);

@@ -218,7 +218,9 @@ void MainWindow::finishedTransmission()
 {
     disconnectTranceiver();
     ui->sendFileButton->setText("Send File");
+    ui->loadFileButton->setText("Load File");
     ui->controllBox->setEnabled(true);
+    ui->resetButton->setEnabled(false);
     ui->fileSendProgressBar->setEnabled(false);
     ui->loadFileButton->setEnabled(true);
     statusBar()->showMessage(tr("File successfully sent"));
@@ -502,7 +504,7 @@ void MainWindow::setState(MainWindow::SendStates state)
     case(Idle):
         switch(sendState)
         {
-        case(Stoped):
+        case(Stoped):   //abort print
             disconnectTranceiver();
             ui->sendFileButton->setText("Send File");
             ui->loadFileButton->setText("Load File");
@@ -526,11 +528,13 @@ void MainWindow::setState(MainWindow::SendStates state)
                 ui->controllBox->setEnabled(false);
                 ui->fileSendProgressBar->setEnabled(true);
                 ui->sendFileButton->setText("Stop");
+                ui->restartButton->setEnabled(true);
+                ui->loadFileButton->setText("Abort");
+                ui->loadFileButton->setEnabled(true);
                 ui->sendString->setEnabled(false);
                 ui->controllBox->setEnabled(false);
                 ui->sendButton->setEnabled(false);
                 ui->sendString->setEnabled(false);
-                ui->loadFileButton->setEnabled(false);
                 Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
                 Transceiver.run();
                 statusBar()->showMessage(tr("Sending File"));
@@ -538,10 +542,14 @@ void MainWindow::setState(MainWindow::SendStates state)
             case(Stoped):   //continue
                 sendState = Sending;
                 connectTranceiver();
+#ifdef Watchdog
                 Transceiver.watchdogTimer->start();
+#endif
                 this->Transceiver.sendNext();
                 ui->loadFileButton->setEnabled(false);
-                ui->restartButton->setEnabled(false);
+                ui->resetButton->setEnabled(true);
+                ui->loadFileButton->setText("Abort");
+                ui->loadFileButton->setEnabled(true);
                 ui->sendFileButton->setText("Stop");
                 ui->controllBox->setEnabled(false);
                 ui->sendButton->setEnabled(false);

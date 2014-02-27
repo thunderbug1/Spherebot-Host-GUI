@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
+//#define Watchdog
+
 class txThread : public QThread
 {
     Q_OBJECT
