@@ -102,6 +102,7 @@ private:
     QMessageBox *restartLayerMsgBox;
 
     QTimer FitInTimer;          //timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
+    void interpretGcode(QString code);
 };
 
 #endif // MAINWINDOW_H

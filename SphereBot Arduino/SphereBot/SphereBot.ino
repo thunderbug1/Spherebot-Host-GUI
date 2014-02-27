@@ -426,7 +426,7 @@ void process_commands(char command[], int command_length) // deals with standard
             for(int i=0;i<100;i++)
             {
                 SoftwareServo::refresh();
-                delay(80);
+                delay(250);
             }           
             servoEnabled=false;
           }

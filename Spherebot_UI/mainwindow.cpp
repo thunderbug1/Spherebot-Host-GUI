@@ -193,6 +193,16 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
+void MainWindow::interpretGcode(QString code)
+{
+    code = removeComments(code);
+    QStringList lines = code.split("\n");
+    for(int i;i<lines.length();i++)
+    {
+        qDebug()<<lines[i];
+    }
+}
+
 void MainWindow::receiveData()
 {
     if(bot->port->canReadLine())
