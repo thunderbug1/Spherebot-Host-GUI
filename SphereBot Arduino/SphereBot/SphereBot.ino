@@ -119,7 +119,7 @@ const double maxFeedrate = 2000.;
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(256000);
     Serial.print(VERSIONCODE);
     Serial.print("\n");
     
@@ -426,7 +426,7 @@ void process_commands(char command[], int command_length) // deals with standard
             for(int i=0;i<100;i++)
             {
                 SoftwareServo::refresh();
-                delay(250);
+                delay(2);
             }           
             servoEnabled=false;
           }
