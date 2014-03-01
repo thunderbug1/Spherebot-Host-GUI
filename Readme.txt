@@ -19,8 +19,8 @@ Features of 2.0:
  what reduces cpu-usage enormously.
 
 -Support for Multilayered Prints:
-		name your layers : <layer1name>_1.gcode
-				   <layer2name>_2.gcode
+		name your layers : <PictureName>_1.gcode
+				   <PictureName>_2.gcode
 				   ...
 	After each layer you will be promted to change the pen for the next layer. 
 	Just press OK and it will automatically load the next layer and start printing.
