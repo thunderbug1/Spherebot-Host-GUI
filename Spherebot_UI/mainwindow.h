@@ -18,7 +18,8 @@
 
 
 #define DEFAULTDIAMETER 20
-#define DEFAULTPENUP 35
+#define DEFAULTPENUP 40
+#define DEFAULTPENDOWN 50
 #define DEFAULTFEEDRATE 3000
 
 #define MAXLISTITEMS 60
@@ -39,7 +40,7 @@ public:
     ~MainWindow();
     void connectTranceiver();
     void disconnectTranceiver();
-    void LoadSettings();
+    bool LoadSettings();
     void SaveSettings();
     void initUI();
     void setState(SendStates state);
@@ -48,7 +49,7 @@ public slots:
     void sendDataUI(QString data);
     void finishedTransmission();
     void refreshSendProgress(int value);
-    void fitGraphicsView();
+    void fitgraphicsView();
 
 private slots:
     void on_connectButton_clicked();
@@ -84,6 +85,7 @@ private:
     void loadFileAndSubFiles(const QString &fileName);
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
+    void interpretGcode(QString code);
     QString curFile;
     QString curDir;
     SendStates sendState;
@@ -101,8 +103,11 @@ private:
     QMessageBox *nextLayerMsgBox;
     QMessageBox *restartLayerMsgBox;
 
+    int penUpAngle;
+    int penDownAngle;
+
     QTimer FitInTimer;          //timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
-    void interpretGcode(QString code);
+    void extractOptions(QString file);
 };
 
 #endif // MAINWINDOW_H

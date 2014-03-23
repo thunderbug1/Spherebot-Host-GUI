@@ -9,11 +9,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowTitle("Spherebot control 2.0");
 
-    QFile stylesheet(":/new/stylesheet/stylesheet.txt");
-    stylesheet.open(QFile::ReadOnly);
-    QString setSheet = QLatin1String(stylesheet.readAll());
-    qDebug()<<setSheet;
-    w.setStyleSheet(setSheet);
+//    QFile stylesheet(":/new/stylesheet/stylesheet.txt");
+//    stylesheet.open(QFile::ReadOnly);
+//    QString setSheet = QLatin1String(stylesheet.readAll());
+//    qDebug()<<setSheet;
+//    w.setStyleSheet(setSheet);
 
     w.show();
 

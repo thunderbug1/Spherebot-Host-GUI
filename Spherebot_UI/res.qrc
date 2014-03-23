@@ -2,4 +2,7 @@
     <qresource prefix="/new/stylesheet">
         <file>stylesheet.txt</file>
     </qresource>
+    <qresource prefix="/icon">
+        <file>icon.png</file>
+    </qresource>
 </RCC>

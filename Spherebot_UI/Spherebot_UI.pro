@@ -39,4 +39,4 @@ RESOURCES += \
 OTHER_FILES += \
     stylesheet.txt
 
-CONFIG += static
+#RC_ICONS = icon/icon.png

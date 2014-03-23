@@ -652,7 +652,7 @@
       <x>1040</x>
       <y>10</y>
       <width>441</width>
-      <height>461</height>
+      <height>241</height>
      </rect>
     </property>
    </widget>
@@ -700,6 +700,19 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_15"/>
    </widget>
+   <widget class="QGraphicsView" name="gcodeView">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>260</y>
+      <width>441</width>
+      <height>251</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -711,6 +724,7 @@
    <zorder>layoutWidget</zorder>
    <zorder>graphicsView</zorder>
    <zorder>layoutWidget</zorder>
+   <zorder>gcodeView</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>

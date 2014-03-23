@@ -3,15 +3,7 @@
 txThread::txThread()
 {
     lineCounter = 0;
-
-    watchdogTimer = new QTimer();
-    watchdogTimer->setInterval(1000);       //because of sudden stops during sending a file
-}                                           //I use a watchdogTimer to force sending the next
-                                            //command if there is a too long pause of communication
-                                            //This is only a workaround!!
-                                            //EDIT: I found out that this sometimes happens because of timing issues in the firmware.
-
-
+}
 
 txThread::~txThread()
 {
@@ -34,8 +26,10 @@ QString removeComments(QString intext)
         {
             if(i != outTmp1.size())
             {
-                if(outTmp1[i] == '\n' && outTmp1[i+1] == '\n') i++;
-                else outTmp2.append(outTmp1[i]);
+                if(!(outTmp1[i] == '\n' && outTmp1[i+1] == '\n'))
+                {
+                    outTmp2.append(outTmp1[i]);
+                }
             }
         }
         ///////////////////////////////////////////////////
@@ -56,9 +50,6 @@ void txThread::run()
 {
     qDebug()<<"entering run";
     lineCounter = 0;
-#ifdef Watchdog
-    watchdogTimer->start();
-#endif
     sendNext();
 }
 
@@ -76,23 +67,13 @@ void txThread::sendNext()
     }
     else
     {
-        watchdogTimer->stop();
         emit fileTransmitted();
         return;
     }
-#ifdef Watchdog
-    watchdogTimer->start();
-#endif
     if(tmp.contains("G4"))
     {
         msleep(300);
     }
-}
-
-void txThread::watchdogTimeout()
-{
-    qDebug()<<"watchdogTimeout";
-    sendNext();
 }
 
 int txThread::getLineCounter()

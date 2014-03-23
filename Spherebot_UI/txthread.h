@@ -6,8 +6,6 @@
 #include <QMessageBox>
 #include <QTimer>
 
-//#define Watchdog
-
 class txThread : public QThread
 {
     Q_OBJECT
@@ -17,7 +15,6 @@ public:
     void run();
     ~txThread();
     int getLineCounter();
-    QTimer *watchdogTimer;
 
 signals:
     void progressChanged(int);
@@ -25,7 +22,6 @@ signals:
 
 public slots:
     void sendNext();
-    void watchdogTimeout();
 private:
     QString textfile;
     int lineCounter;

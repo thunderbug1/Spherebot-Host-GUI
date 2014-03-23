@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+//#include <QtWinExtras/QtWin>
+
+QString removeComments(QString intext);
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -16,44 +20,61 @@ MainWindow::MainWindow(QWidget *parent) :
     sendState = Idle;
     this->bot = new spherebot();
 
+    penDownAngle = DEFAULTPENDOWN;
+    penUpAngle = DEFAULTPENUP;
+
     layerIndex = 0;
 
     connect( this->bot, SIGNAL(dataSent(QString)),this, SLOT(sendDataUI(QString)));
     connect(&Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
     connect(&Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
     connect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
-    connect(Transceiver.watchdogTimer, SIGNAL(timeout()),&Transceiver, SLOT(watchdogTimeout()));
 
-    LoadSettings();
     initUI();
 
-    FitInTimer.setInterval(10);
-    FitInTimer.setSingleShot(true);
-    connect(&FitInTimer,SIGNAL(timeout()),this,SLOT(fitGraphicsView()));
-    FitInTimer.start();
+    if(LoadSettings())
+    {
+        FitInTimer.setInterval(10);
+        FitInTimer.setSingleShot(true);
+        connect(&FitInTimer,SIGNAL(timeout()),this,SLOT(fitgraphicsView()));
+        FitInTimer.start();
+    }
+    qDebug()<<"mainwindow initialised: ";
+
+//    if (QtWin::isCompositionEnabled()) {
+//        QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
+//        setAttribute(Qt::WA_TranslucentBackground, true);
+//        setAttribute(Qt::WA_NoSystemBackground, false);
+//        setStyleSheet("MusicPlayer { background: transparent; }");
+//    } else {
+//        QtWin::resetExtendedFrame(this);
+//        setAttribute(Qt::WA_TranslucentBackground, false);
+//        setStyleSheet(QString("MusicPlayer { background: %1; }").arg(QtWin::realColorizationColor().name()));
+//    }
 }
 
-void MainWindow::fitGraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
+void MainWindow::fitgraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
 {
     QGraphicsItem *item = ui->graphicsView->items().first();
     ui->graphicsView->fitInView(item);
-        ui->graphicsView->ensureVisible(item);
-        qDebug()<<"fit in";
+
+    ui->graphicsView->ensureVisible(item);
+    qDebug()<<"fit in";
 }
 
 void MainWindow::initUI()
 {
     nextLayerMsgBox = new QMessageBox(QMessageBox::Information,
-                                            "Next Layer",
-                                            "The Layer has been finished!\nplease insert the tool for the layer: " + QString::number(layerIndex),
-                                            QMessageBox::Yes|QMessageBox::No);
+                                      "Next Layer",
+                                      "The Layer has been finished!\nplease insert the tool for the layer: " + QString::number(layerIndex),
+                                      QMessageBox::Yes|QMessageBox::No);
     nextLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
     nextLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
 
     restartLayerMsgBox = new QMessageBox(QMessageBox::Information,
-                                            "Restart?",
-                                            "Do you want to restart the print?",
-                                            QMessageBox::Yes|QMessageBox::No);
+                                         "Restart?",
+                                         "Do you want to restart the print?",
+                                         QMessageBox::Yes|QMessageBox::No);
     restartLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
     restartLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
 }
@@ -66,15 +87,21 @@ MainWindow::~MainWindow()
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::LoadSettings()
+bool MainWindow::LoadSettings()
 {
+    bool returnvalue = false;
     QSettings settings("thunderbug","SpherebotSettings");
     settings.beginGroup("settings");
     curFile = settings.value("fileName", "").toString();
     curDir = settings.value("currentDirectory", "").toString();
     if(!curFile.isEmpty())
     {
-        loadFileAndSubFiles(curFile);
+        if(QFile::exists(curFile))
+        {
+            qDebug()<<"load last file.";
+            loadFileAndSubFiles(curFile);
+            returnvalue = true;
+        }
     }
     qDebug()<<"load: "<<curFile;
     QString SavedPortName = settings.value("PortName", "").toString();
@@ -91,6 +118,8 @@ void MainWindow::LoadSettings()
         }
     }
     settings.endGroup();
+    qDebug()<<"settings loaded: ";
+    return returnvalue;
 }
 
 void MainWindow::SaveSettings()
@@ -104,8 +133,34 @@ void MainWindow::SaveSettings()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+int getOption(QString string,QString searchString)
+{
+    int index = string.indexOf(searchString);
+    if(index != -1)
+    {
+        int i = index;
+        while(string.at(i) != ' ')
+            i++;
+        qDebug()<<"index: "<<index+searchString.length()<<"i"<<i;
+        QString subsection = string.mid(index+searchString.length(),(i - (index+searchString.length())));
+        qDebug()<<subsection;
+        return subsection.toInt();
+    }
+    return -1;
+}
+
+void MainWindow::extractOptions(QString file)
+{
+    penUpAngle = getOption(file,"--pen-up-angle=");
+    penDownAngle = getOption(file,"--pen-down-angle=");
+    qDebug()<<"penup: "<<penUpAngle;
+    qDebug()<<"pendown: "<<penDownAngle;
+}
+
 void MainWindow::loadFile(const QString &fileName)
 {
+    qDebug()<<"loading file: "<<fileName;
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
@@ -116,7 +171,12 @@ void MainWindow::loadFile(const QString &fileName)
     }
     curDir = QFileInfo(fileName).absoluteFilePath();
     statusBar()->showMessage(tr("File loaded"), 2000);
-    ui->fileTextEdit->setText(file.readAll());
+
+    QString code = file.readAll();
+    extractOptions(code);
+    interpretGcode(code);
+    ui->fileTextEdit->setText(code);
+    qDebug()<<removeComments(code);
 
     scene->clear();
     QString picPath = QFileInfo(fileName).absoluteFilePath();
@@ -197,9 +257,21 @@ void MainWindow::interpretGcode(QString code)
 {
     code = removeComments(code);
     QStringList lines = code.split("\n");
-    for(int i;i<lines.length();i++)
+    QStringList line;
+    int state = 0; // 0 = pen up , 1 = pen down
+    for(int i = 0;i<lines.length();i++)
     {
-        qDebug()<<lines[i];
+        //qDebug()<<lines[i];
+        line = lines[i].split(" ");
+        if(lines[i].contains("M300 S" + QString::number(penUpAngle) +".00"))
+            state = 0;
+        else if(lines[i].contains("M300 S" + QString::number(penDownAngle) +".00"))
+            state = 1;
+
+        if(state == 1)//drawing
+        {
+
+        }
     }
 }
 
@@ -231,6 +303,7 @@ void MainWindow::finishedTransmission()
     ui->loadFileButton->setText("Load File");
     ui->controllBox->setEnabled(true);
     ui->resetButton->setEnabled(false);
+    ui->fileSendProgressBar->setValue(0);
     ui->fileSendProgressBar->setEnabled(false);
     ui->loadFileButton->setEnabled(true);
     statusBar()->showMessage(tr("File successfully sent"));
@@ -303,10 +376,10 @@ void MainWindow::interpretSentString(QString string)
                         ui->servoSlider->setValue(list[i+1].remove(0,1).toDouble());
                     }
                     else if(list[i].remove(0,1) == "400")
-                        {
-                       // qDebug()<<"setting diameterSlider";
+                    {
+                        // qDebug()<<"setting diameterSlider";
                         ui->diameterSlider->setValue(list[i+1].remove(0,1).toDouble());
-                        }
+                    }
                 }
                 else if (list[i].startsWith('F'))
                 {
@@ -377,7 +450,7 @@ void MainWindow::on_resetButton_clicked()
 void MainWindow::sendDataUI(QString data)
 {
     ui->txList->insertItem(0,data);
-     delete ui->txList->item(MAXLISTITEMS);
+    delete ui->txList->item(MAXLISTITEMS);
 }
 
 void MainWindow::on_sendString_editingFinished()
@@ -403,8 +476,8 @@ void MainWindow::on_servoSlider_sliderMoved(int position)
 {
     if(sendState != Sending)
     {
-    QString tmp = ("M300 S" + QString::number(position)+"\n");
-    bot->send(tmp);
+        QString tmp = ("M300 S" + QString::number(position)+"\n");
+        bot->send(tmp);
     }
 }
 
@@ -412,9 +485,9 @@ void MainWindow::on_servospinBox_valueChanged(int arg1)
 {
     if(sendState != Sending)
     {
-    ui->servoSlider->setValue(arg1);
-    QString tmp = ("M300 S" + QString::number(arg1)+"\n");
-    bot->send(tmp);
+        ui->servoSlider->setValue(arg1);
+        QString tmp = ("M300 S" + QString::number(arg1)+"\n");
+        bot->send(tmp);
     }
 }
 
@@ -422,9 +495,9 @@ void MainWindow::on_penRotationBox_valueChanged(int arg1)
 {
     if(sendState != Sending)
     {
-    QString tmp = ("G1 Y" + QString::number((double)arg1));
-    bot->send(tmp);
-    ui->penSlider->setValue(arg1);
+        QString tmp = ("G1 Y" + QString::number((double)arg1));
+        bot->send(tmp);
+        ui->penSlider->setValue(arg1);
     }
 }
 
@@ -432,7 +505,7 @@ void MainWindow::on_penSlider_valueChanged(int value)
 {
     if(sendState != Sending)
     {
-    ui->penRotationBox->setValue(value);
+        ui->penRotationBox->setValue(value);
     }
 }
 
@@ -440,7 +513,7 @@ void MainWindow::on_eggSlider_valueChanged(int value)
 {
     if(sendState != Sending)
     {
-    ui->eggRotationBox->setValue(value);
+        ui->eggRotationBox->setValue(value);
     }
 }
 
@@ -448,9 +521,9 @@ void MainWindow::on_eggRotationBox_valueChanged(int arg1)
 {
     if(sendState != Sending)
     {
-    QString tmp = ("G1 X" + QString::number((double)arg1)+"\n");
-    bot->send(tmp);
-    ui->eggSlider->setValue(arg1);
+        QString tmp = ("G1 X" + QString::number((double)arg1)+"\n");
+        bot->send(tmp);
+        ui->eggSlider->setValue(arg1);
     }
 }
 
@@ -532,63 +605,62 @@ void MainWindow::setState(MainWindow::SendStates state)
     case(Sending):
         switch(sendState)
         {
-            case(Idle):     //start sending
-                sendState = Sending;
-                connectTranceiver();
-                ui->controllBox->setEnabled(false);
-                ui->fileSendProgressBar->setEnabled(true);
-                ui->sendFileButton->setText("Stop");
-                ui->restartButton->setEnabled(true);
-                ui->loadFileButton->setText("Abort");
-                ui->loadFileButton->setEnabled(true);
-                ui->sendString->setEnabled(false);
-                ui->controllBox->setEnabled(false);
-                ui->sendButton->setEnabled(false);
-                ui->sendString->setEnabled(false);
-                Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
-                Transceiver.run();
-                statusBar()->showMessage(tr("Sending File"));
-                break;
-            case(Stoped):   //continue
-                sendState = Sending;
-                connectTranceiver();
+        case(Idle):     //start sending
+            sendState = Sending;
+            connectTranceiver();
+            ui->controllBox->setEnabled(false);
+            ui->fileSendProgressBar->setEnabled(true);
+            ui->sendFileButton->setText("Stop");
+            ui->restartButton->setEnabled(true);
+            ui->loadFileButton->setText("Abort");
+            ui->loadFileButton->setEnabled(true);
+            ui->sendString->setEnabled(false);
+            ui->controllBox->setEnabled(false);
+            ui->sendButton->setEnabled(false);
+            ui->sendString->setEnabled(false);
+            Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
+            Transceiver.run();
+            statusBar()->showMessage(tr("Sending File"));
+            break;
+        case(Stoped):   //continue
+            sendState = Sending;
+            connectTranceiver();
 #ifdef Watchdog
-                Transceiver.watchdogTimer->start();
+            Transceiver.watchdogTimer->start();
 #endif
-                this->Transceiver.sendNext();
-                ui->loadFileButton->setEnabled(false);
-                ui->resetButton->setEnabled(true);
-                ui->loadFileButton->setText("Abort");
-                ui->loadFileButton->setEnabled(true);
-                ui->sendFileButton->setText("Stop");
-                ui->controllBox->setEnabled(false);
-                ui->sendButton->setEnabled(false);
-                ui->sendString->setEnabled(false);
-                statusBar()->showMessage(tr("Sending File"));
-                break;
+            this->Transceiver.sendNext();
+            ui->loadFileButton->setEnabled(false);
+            ui->resetButton->setEnabled(true);
+            ui->loadFileButton->setText("Abort");
+            ui->loadFileButton->setEnabled(true);
+            ui->sendFileButton->setText("Stop");
+            ui->controllBox->setEnabled(false);
+            ui->sendButton->setEnabled(false);
+            ui->sendString->setEnabled(false);
+            statusBar()->showMessage(tr("Sending File"));
+            break;
         }
         break;
     case(Stoped):
         switch(sendState)
         {
-            case(Idle):
+        case(Idle):
 
-                break;
-            case(Sending):
-                sendState = Stoped;
-                disconnectTranceiver();
-                Transceiver.watchdogTimer->stop();
-                ui->restartButton->setEnabled(true);
-                ui->sendFileButton->setText("Continue");
-                ui->loadFileButton->setText("Abort");   //used as Abort button
-                ui->loadFileButton->setEnabled(true);
-                ui->controllBox->setEnabled(true);
-                ui->sendButton->setEnabled(true);
-                ui->sendString->setEnabled(true);
-                statusBar()->showMessage(tr("Stoped sending File"));
-                //vScrollBar->setSliderPosition(Transceiver.getLineCounter());
-                //ui->fileTextEdit->setVerticalScrollBar();
-                break;
+            break;
+        case(Sending):
+            sendState = Stoped;
+            disconnectTranceiver();
+            ui->restartButton->setEnabled(true);
+            ui->sendFileButton->setText("Continue");
+            ui->loadFileButton->setText("Abort");   //used as Abort button
+            ui->loadFileButton->setEnabled(true);
+            ui->controllBox->setEnabled(true);
+            ui->sendButton->setEnabled(true);
+            ui->sendString->setEnabled(true);
+            statusBar()->showMessage(tr("Stoped sending File"));
+            //vScrollBar->setSliderPosition(Transceiver.getLineCounter());
+            //ui->fileTextEdit->setVerticalScrollBar();
+            break;
         }
         break;
     }
@@ -596,7 +668,7 @@ void MainWindow::setState(MainWindow::SendStates state)
 
 void MainWindow::on_sendFileButton_clicked()
 {
-   // QScrollBar *vScrollBar = ui->fileTextEdit->verticalScrollBar();
+    // QScrollBar *vScrollBar = ui->fileTextEdit->verticalScrollBar();
     switch(sendState)
     {
     case 0:         //start to send
