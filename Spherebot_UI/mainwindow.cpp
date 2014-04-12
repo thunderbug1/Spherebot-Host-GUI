@@ -295,6 +295,7 @@ void MainWindow::finishedLayer()
 void MainWindow::finishedTransmission()
 {
     disconnectTranceiver();
+    this->Transceiver.resetState();
     ui->sendFileButton->setText("Send File");
     ui->loadFileButton->setText("Load File");
     ui->controllBox->setEnabled(true);
@@ -542,7 +543,6 @@ void MainWindow::connectTranceiver()
 void MainWindow::disconnectTranceiver()
 {
     disconnect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
-    this->Transceiver.resetState();
 }
 
 void MainWindow::setState(MainWindow::SendStates state)
@@ -557,6 +557,7 @@ void MainWindow::setState(MainWindow::SendStates state)
             ui->fileSendProgressBar->setValue(0);
         case(Stoped):   //from Stoped to Idle
             disconnectTranceiver();
+            this->Transceiver.resetState();
             ui->sendFileButton->setText("Send File");
             ui->loadFileButton->setText("Load File");
             ui->restartButton->setEnabled(false);
@@ -606,7 +607,7 @@ void MainWindow::setState(MainWindow::SendStates state)
             break;
         }
         break;
-    case(Stoped):           //from Stoped to
+    case(Stoped):
         switch(sendState)
         {
         case(Idle):
@@ -629,6 +630,7 @@ void MainWindow::setState(MainWindow::SendStates state)
         }
         break;
     }
+    qDebug()<<"state: "<<state;
 }
 
 void MainWindow::on_sendFileButton_clicked()
