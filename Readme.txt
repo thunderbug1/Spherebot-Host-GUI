@@ -10,8 +10,6 @@ http://pleasantsoftware.com/developer/3d/spherebot/
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-Old Version: https://github.com/thunderbug1/Spherebot-Host-GUI
-
 Features of 2.0:
 
 -Complete rework of the internal Communication, now based on the Qt-internal SerialPort library.
