@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
     connect(&Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
     connect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
+    connect(&Transceiver,SIGNAL(layerTransmitted()),this,SLOT(finishedLayer()));
 
     initUI();
 
@@ -40,17 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
         FitInTimer.start();
     }
     qDebug()<<"mainwindow initialised: ";
-
-//    if (QtWin::isCompositionEnabled()) {
-//        QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
-//        setAttribute(Qt::WA_TranslucentBackground, true);
-//        setAttribute(Qt::WA_NoSystemBackground, false);
-//        setStyleSheet("MusicPlayer { background: transparent; }");
-//    } else {
-//        QtWin::resetExtendedFrame(this);
-//        setAttribute(Qt::WA_TranslucentBackground, false);
-//        setStyleSheet(QString("MusicPlayer { background: %1; }").arg(QtWin::realColorizationColor().name()));
-//    }
 }
 
 void MainWindow::fitgraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
@@ -75,8 +65,8 @@ void MainWindow::initUI()
                                          "Restart?",
                                          "Do you want to restart the print?",
                                          QMessageBox::Yes|QMessageBox::No);
-    restartLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
-    restartLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
+    //restartLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
+    //restartLayerMsgBox->setButtonText(QMessageBox::No,"No");
 }
 
 MainWindow::~MainWindow()
@@ -99,7 +89,7 @@ bool MainWindow::LoadSettings()
         if(QFile::exists(curFile))
         {
             qDebug()<<"load last file.";
-            loadFileAndSubFiles(curFile);
+            loadFile(curFile);
             returnvalue = true;
         }
     }
@@ -175,6 +165,7 @@ void MainWindow::loadFile(const QString &fileName)
     QString code = file.readAll();
     extractOptions(code);
     interpretGcode(code);
+    refreshLayerNames(code);
     ui->fileTextEdit->setText(code);
     qDebug()<<removeComments(code);
 
@@ -195,47 +186,6 @@ void MainWindow::loadFile(const QString &fileName)
     else ui->sendButton->setEnabled(false);
 }
 
-
-void MainWindow::loadFileAndSubFiles(const QString &fileName)       //SubFiles = other layers of the print
-
-{
-    loadFile(fileName);
-    layerFileNames.clear();
-    layerFileNames.append(fileName);
-    //search for other layer files
-    QStringList nameParts = fileName.split("_");
-    QString layerNumberString = nameParts.last();
-    layerNumberString.chop(6);      //remove .gcode
-    int layerNumber = layerNumberString.toInt();
-    nameParts.removeLast();
-    QString mainName = nameParts.join("");
-    QFile testFile;
-    if(layerNumber != 0)   //Conversion successfully
-    {
-        qDebug()<<"layerNumber is unequal 0";
-        while(1)
-        {
-            qDebug()<<"loop: "<<layerNumber;
-            layerNumber++;
-            QString testFileName = mainName + "_" + QString::number(layerNumber) + ".gcode";
-            testFile.setFileName(testFileName);
-            qDebug()<<"testFileName: "<<testFile.fileName();
-            if(testFile.exists())
-            {
-                layerFileNames.append(testFileName);
-            }
-            else
-            {
-                qDebug()<<"exit";
-                break;
-            }
-        }
-    }
-    qDebug()<<layerFileNames;
-    curFile = fileName;
-}
-
-
 bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -253,7 +203,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::interpretGcode(QString code)
+void MainWindow::interpretGcode(QString code)       //for future gcode interpretation
 {
     code = removeComments(code);
     QStringList lines = code.split("\n");
@@ -275,6 +225,26 @@ void MainWindow::interpretGcode(QString code)
     }
 }
 
+void MainWindow::refreshLayerNames(QString file)
+{
+    QList<QString> lines = file.split("\n");
+    int layerchange = 0;
+    for(int i=0;i<lines.size();i++)
+    {
+        qDebug()<<lines[i];
+        if(lines[i].contains("M01"))
+        {
+            if(layerchange != 0)
+            {
+                qDebug()<<"This is the Split Line: " << lines[i].split("'");
+                layerNames.append(lines[i].split("'")[1]);
+            }
+            layerchange++;
+        }
+    }
+    qDebug()<<"This are the layernames: "<< layerNames;
+}
+
 void MainWindow::receiveData()
 {
     if(bot->port->canReadLine())
@@ -289,11 +259,37 @@ void MainWindow::receiveData()
     }
 }
 
-
-
 void MainWindow::refreshSendProgress(int value)
 {
     ui->fileSendProgressBar->setValue(value);
+}
+
+void MainWindow::finishedLayer()
+{
+    if(layerNames.size() > 1)
+    {
+        layerIndex++;
+    }
+    qDebug()<<"layerIndex: "<<layerIndex;
+    qDebug()<<"layerNames: "<<layerNames;
+    qDebug()<<"layerNames.size(): "<<layerNames.size();
+    if(layerIndex < layerNames.size())      //next layer
+    {
+        nextLayerMsgBox->setText("Please change the tool for layer: " + layerNames[layerIndex]);
+        SetBotToHomePosition();
+        switch(nextLayerMsgBox->exec())
+        {
+            case(QMessageBox::No):
+            setState(Idle);    //abort
+            break;
+            case(QMessageBox::Yes):
+            break;
+            default:
+            setState(Idle);    //abort
+            break;
+        }
+
+    }
 }
 
 void MainWindow::finishedTransmission()
@@ -308,43 +304,11 @@ void MainWindow::finishedTransmission()
     ui->loadFileButton->setEnabled(true);
     statusBar()->showMessage(tr("File successfully sent"));
     sendState = Idle;
-    if(layerFileNames.size() > 1)
+    layerIndex = 0;
+    SetBotToHomePosition();
+    if (QMessageBox::Yes == restartLayerMsgBox->exec())
     {
-        layerIndex++;
-    }
-    qDebug()<<"layerIndex: "<<layerIndex;
-    qDebug()<<"layerFileNames: "<<layerFileNames;
-    qDebug()<<"layerFileNames.size(): "<<layerFileNames.size();
-    if(layerIndex < layerFileNames.size())      //next layer
-    {
-        if (QMessageBox::Yes == nextLayerMsgBox->exec())
-        {
-            if(layerFileNames.size() >= layerIndex)
-            {
-                loadFile(layerFileNames.at(layerIndex));
-                on_sendFileButton_clicked();
-            }
-            else
-            {
-                qDebug()<<"Warning: tried to loadFile to start next layer but layerIndex is too high!";
-            }
-        }
-    }
-    else //restart print?
-    {
-        layerIndex = 0;
-        if(!layerFileNames.isEmpty())
-        {
-            loadFile(layerFileNames.at(layerIndex));
-        }
-        else
-        {
-            qDebug()<<"Warning: tried to loadFile to restart print but the layerFileNames are empty!";
-        }
-        if (QMessageBox::Yes == restartLayerMsgBox->exec())
-        {
-            on_sendFileButton_clicked();
-        }
+        on_sendFileButton_clicked();
     }
 }
 
@@ -527,9 +491,9 @@ void MainWindow::on_eggRotationBox_valueChanged(int arg1)
     }
 }
 
-void MainWindow::on_loadFileButton_clicked()
+void MainWindow::on_loadFileButton_clicked()        //== Abort Button
 {
-    if(sendState != Stoped)
+    if(sendState == Idle)
     {
         QString fileName;
         if(!curDir.isEmpty())
@@ -542,7 +506,7 @@ void MainWindow::on_loadFileButton_clicked()
         }
         if (!fileName.isEmpty())
         {
-            loadFileAndSubFiles(fileName);
+            loadFile(fileName);
         }
     }
     else
@@ -578,6 +542,7 @@ void MainWindow::connectTranceiver()
 void MainWindow::disconnectTranceiver()
 {
     disconnect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
+    this->Transceiver.resetState();
 }
 
 void MainWindow::setState(MainWindow::SendStates state)
@@ -587,7 +552,10 @@ void MainWindow::setState(MainWindow::SendStates state)
     case(Idle):
         switch(sendState)
         {
-        case(Stoped):   //abort print
+        case(Sending):      //from Sending to Idle
+            //same code as below
+            ui->fileSendProgressBar->setValue(0);
+        case(Stoped):   //from Stoped to Idle
             disconnectTranceiver();
             ui->sendFileButton->setText("Send File");
             ui->loadFileButton->setText("Load File");
@@ -597,15 +565,12 @@ void MainWindow::setState(MainWindow::SendStates state)
             ui->loadFileButton->setEnabled(true);
             sendState = Idle;
             break;
-        case(Sending):
-            //not allowed to set to idle while sending. A stop is necessary
-            break;
         }
         break;
     case(Sending):
         switch(sendState)
         {
-        case(Idle):     //start sending
+        case(Idle):     //start sending     //from Idle to Sending
             sendState = Sending;
             connectTranceiver();
             ui->controllBox->setEnabled(false);
@@ -641,13 +606,13 @@ void MainWindow::setState(MainWindow::SendStates state)
             break;
         }
         break;
-    case(Stoped):
+    case(Stoped):           //from Stoped to
         switch(sendState)
         {
         case(Idle):
 
             break;
-        case(Sending):
+        case(Sending):      //from Sending to Stoped
             sendState = Stoped;
             disconnectTranceiver();
             ui->restartButton->setEnabled(true);
@@ -701,6 +666,14 @@ void MainWindow::on_restartButton_clicked()
     Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
     Transceiver.run();
     statusBar()->showMessage(tr("Sending File"));
+}
+
+void MainWindow::SetBotToHomePosition()
+{
+    QString tmp = ("G1 Y0");
+    tmp.append("\nM300 S" + QString::number(penUpAngle));
+    qDebug()<<"to print: "<<tmp;
+    bot->send(tmp);
 }
 
 void MainWindow::on_servoFeedrateSlider_valueChanged(int value)

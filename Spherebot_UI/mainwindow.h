@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "spherebot.h"
-//#include "qextserialenumerator.h"
 #include <QtSerialPort/QSerialPortInfo>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -50,6 +49,7 @@ public slots:
     void finishedTransmission();
     void refreshSendProgress(int value);
     void fitgraphicsView();
+    void finishedLayer();
 
 private slots:
     void on_connectButton_clicked();
@@ -86,6 +86,8 @@ private:
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void interpretGcode(QString code);
+    void refreshLayerNames(QString file);
+    void SetBotToHomePosition();
     QString curFile;
     QString curDir;
     SendStates sendState;
@@ -97,7 +99,7 @@ private:
     QTimer *rxTimer;
     txThread Transceiver;
     QGraphicsScene *scene;
-    QList<QString> layerFileNames;        //layerFile, layerColorString
+    QList<QString> layerNames;        //layerFile, layerColorString
     int layerIndex;
 
     QMessageBox *nextLayerMsgBox;

@@ -1,0 +1,3 @@
+ -Xms64m -Xmx256m
+StippleGen_2
+StippleGen_2.jar,core.jar,controlP5.jar,toxiclibscore.jar,toxiclibs_p5.jar

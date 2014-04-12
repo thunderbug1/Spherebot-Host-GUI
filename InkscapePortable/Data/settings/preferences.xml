@@ -553,7 +553,16 @@
        w="427"
        h="432" />
     <group
-       id="filtereffects" />
+       id="filtereffects"
+       panel_size="1"
+       panel_ratio="100"
+       panel_mode="1"
+       panel_wrap="0"
+       state="2"
+       x="0"
+       y="0"
+       w="507"
+       h="400" />
     <group
        id="textandfont" />
     <group
@@ -585,15 +594,15 @@
     <group
        id="preferences"
        state="1"
-       page="7"
+       page="27"
        panel_size="1"
        panel_ratio="100"
        panel_mode="1"
        panel_wrap="0"
-       x="875"
+       x="879"
        y="0"
-       w="1041"
-       h="270" />
+       w="1037"
+       h="959" />
     <group
        id="gradienteditor" />
     <group
@@ -613,18 +622,18 @@
        default="org.inkscape.output.svg.inkscape"
        append_extension="1"
        enable_preview="1"
-       path="G:\A_PROJECTS\Documents\Pictures\Spherebot"
+       path="F:\User-Daten\Documents\GitHub\Documents\Pictures\Spherebot"
        use_current_dir="1" />
     <group
        id="save_copy"
        default="org.inkscape.output.svg.inkscape"
        append_extension="1"
        enable_preview="1"
-       path="G:\A_PROJECTS\Documents\Pictures\Spherebot" />
+       path="F:\User-Daten\Documents\GitHub\Documents\Pictures\Spherebot" />
     <group
        id="open"
        enable_preview="1"
-       path="G:\A_PROJECTS\Documents\Pictures\Spherebot\" />
+       path="F:\User-Daten\Desktop\" />
     <group
        id="import"
        enable_preview="1"
@@ -672,8 +681,8 @@
        panel_ratio="100"
        panel_mode="1"
        panel_wrap="0"
-       x="1240"
-       y="0"
+       x="1140"
+       y="18"
        w="676"
        h="366" />
     <group
@@ -692,27 +701,27 @@
        on-blur="0.50"
        animate-time="0" />
     <group
-       id="livepatheffect"
-       panel_size="1"
-       panel_ratio="100"
-       panel_mode="1"
-       panel_wrap="0"
-       state="2"
-       x="0"
-       y="0"
+       h="214"
        w="427"
-       h="214" />
-    <group
-       id="documentmetadata"
-       panel_size="1"
-       panel_ratio="100"
-       panel_mode="1"
-       panel_wrap="0"
-       state="2"
-       x="0"
        y="0"
+       x="0"
+       state="2"
+       panel_wrap="0"
+       panel_mode="1"
+       panel_ratio="100"
+       panel_size="1"
+       id="livepatheffect" />
+    <group
+       h="510"
        w="610"
-       h="510" />
+       y="0"
+       x="0"
+       state="2"
+       panel_wrap="0"
+       panel_mode="1"
+       panel_ratio="100"
+       panel_size="1"
+       id="documentmetadata" />
   </group>
   <group
      id="printing">
@@ -1036,10 +1045,10 @@
      id="desktop"
      style="fill:#000000;fill-opacity:1;-inkscape-font-specification:Wide Latin;font-family:Wide Latin;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke:#000000;stroke-opacity:1">
     <group
-       width="601"
-       height="424"
-       x="180"
-       y="180"
+       width="1433"
+       height="948"
+       x="-3"
+       y="9"
        fullscreen="0"
        id="geometry"
        maximized="0" />

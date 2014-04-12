@@ -2,12 +2,18 @@
 
 txThread::txThread()
 {
-    lineCounter = 0;
+    resetState();
 }
 
 txThread::~txThread()
 {
 
+}
+
+void txThread::resetState()
+{
+    lineCounter = 0;
+    ignoreFirstM01 = true;
 }
 
 QString removeComments(QString intext)
@@ -32,7 +38,7 @@ QString removeComments(QString intext)
                 }
             }
         }
-        ///////////////////////////////////////////////////
+        ///////////////////////////////////////////////////    
     return outTmp2;
 }
 
@@ -41,7 +47,7 @@ void txThread::set(QString intextfile,spherebot &uibot)
     lineCounter = 0;
     textfile.clear();
     textfile.append(removeComments(intextfile));
-    qDebug()<<"The textfile String is: \n\n" + textfile + "\n\nENDE\n\n";
+    //qDebug()<<"The textfile String is: \n\n" + textfile + "\n\nENDE\n\n";
     lineMax = textfile.count("\n");
     bot = &uibot;
 }
@@ -59,6 +65,17 @@ void txThread::sendNext()
     if(lineCounter <= lineMax)
     {
         tmp = textfile.section("\n",lineCounter,lineCounter);
+        if(tmp.contains("M01"))
+        {
+            if(ignoreFirstM01)
+            {
+                ignoreFirstM01 = false;
+            }
+            else
+            {
+                emit layerTransmitted();
+            }
+        }
         tmp.append("\n");
         bot->send(tmp);
         double progress= (double) lineCounter/(double)lineMax;
@@ -68,6 +85,7 @@ void txThread::sendNext()
     else
     {
         emit fileTransmitted();
+        resetState();
         return;
     }
     if(tmp.contains("G4"))

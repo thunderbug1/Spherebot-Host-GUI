@@ -5,6 +5,7 @@
 #include "spherebot.h"
 #include <QMessageBox>
 #include <QTimer>
+#include <QString>
 
 class txThread : public QThread
 {
@@ -18,14 +19,17 @@ public:
 
 signals:
     void progressChanged(int);
+    void layerTransmitted();
     void fileTransmitted();
 
 public slots:
     void sendNext();
+    void resetState();
 private:
     QString textfile;
     int lineCounter;
     int lineMax;
+    bool ignoreFirstM01;
     spherebot *bot;
 };
 
