@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-//#include <QtWinExtras/QtWin>
-
 QString removeComments(QString intext);
 
 MainWindow::MainWindow(QWidget *parent) :

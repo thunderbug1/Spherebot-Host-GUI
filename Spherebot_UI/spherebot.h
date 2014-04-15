@@ -2,7 +2,6 @@
 #define SPHEREBOT_H
 
 #include <QObject>
-//#include <qextserialport.h>
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QString>

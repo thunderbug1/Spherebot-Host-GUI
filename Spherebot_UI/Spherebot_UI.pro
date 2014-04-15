@@ -9,9 +9,8 @@
 #
 
 QT       += core gui\
-            serialport
-
-QT      += svg
+            serialport\
+            svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,17 +25,16 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     spherebot.h \
-    txthread.h \
-    stylesheet.h
+    txthread.h
 
 FORMS    += mainwindow.ui
 
 #CONFIG += static
 
-RESOURCES += \
-    res.qrc
+#RESOURCES += \
+#    res.qrc
 
-OTHER_FILES += \
-    stylesheet.txt
+#OTHER_FILES += \
+#    stylesheet.txt
 
 #RC_ICONS = icon/icon.png
