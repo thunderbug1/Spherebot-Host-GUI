@@ -34,6 +34,10 @@ Features of 2.0:
 
 HOW TO:
 
+0.) Build the Eggbot
+
+	I used these CAD files: https://www.thingiverse.com/thing:22438
+
 1.) Upload the Arduino sketch.
 
 	(I have added an additional multiplicator to the y-Step calculation to 
