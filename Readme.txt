@@ -55,5 +55,6 @@ Warning for custom Firmwares:
 	the next command is sent.
 				
 
+3.) Print stuff: Sources - https://github.com/matthewbeckler/HackPittsburghMedia
 
 PS:Have fun with it ;)
