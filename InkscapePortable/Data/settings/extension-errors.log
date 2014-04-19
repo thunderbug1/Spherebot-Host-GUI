@@ -1,57 +1,57 @@
-Erweiterung »Dia Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: extensions
-  Zeichenkette: dia2svg.sh
-  Beschreibung: Das Skript »dia2svg.sh« sollte in Ihrer Inkscape-Installation vorhanden sein. Wenn Sie es nicht haben, ist wahrscheinlich etwas mit Ihrer Inkscape-Installation nicht in Ordnung.
+Extension "Dia Input" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: extensions
+  string: dia2svg.sh
+  description: The dia2svg.sh script should be installed with your Inkscape distribution.  If you do not have it, there is likely to be something wrong with your Inkscape installation.
 
-Erweiterung »Dia Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: dia
-  Beschreibung: Um Dia-Dateien zu importieren, muss Dia selbst installiert sein. Sie können Dia von http://live.gnome.org/Dia herunterladen.
+Extension "Dia Input" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: dia
+  description: In order to import Dia files, Dia itself must be installed.  You can get Dia at http://live.gnome.org/Dia
 
-Erweiterung »DXF Output«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: extensions
-  Zeichenkette: ps2dxf.sh
+Extension "DXF Output" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: extensions
+  string: ps2dxf.sh
 
-Erweiterung »DXF Output«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: pstoedit
-  Beschreibung: pstoedit muss installiert sein, um diese Funktion nutzen zu können. Siehe http://www.pstoedit.net/pstoedit
+Extension "DXF Output" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: pstoedit
+  description: pstoedit must be installed to run; see http://www.pstoedit.net/pstoedit
 
-Erweiterung »LaTeX formula«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: pstoedit
+Extension "LaTeX formula" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: pstoedit
 
-Erweiterung »XFIG Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: fig2dev
+Extension "XFIG Input" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: fig2dev
 
-Erweiterung »GIMP XCF«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: gimp
+Extension "GIMP XCF" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: gimp
 
-Erweiterung »Sketch Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: extensions
-  Zeichenkette: sk2svg.sh
+Extension "Sketch Input" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: extensions
+  string: sk2svg.sh
 
-Erweiterung »Sketch Input«: Laden fehlgeschlagen, da eine Abhängigkeit nicht aufgelöst werden konnte.
-Abhängigkeit:
-  Typ: executable
-  Speicherort: Pfad
-  Zeichenkette: skconvert
+Extension "Sketch Input" failed to load because a dependency was not met.
+Dependency:
+  type: executable
+  location: path
+  string: skconvert
 
