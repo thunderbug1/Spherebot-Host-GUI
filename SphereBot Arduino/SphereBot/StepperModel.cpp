@@ -42,16 +42,18 @@ StepperModel::StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inE
   pinMode(dirPin, OUTPUT);  
   pinMode(stepPin, OUTPUT);  
   pinMode(enablePin, OUTPUT);  
-  pinMode(ms1Pin, OUTPUT);  
-  pinMode(ms2Pin, OUTPUT); 
   if(endStopPin>=0)
-    pinMode(endStopPin, INPUT);  
+    pinMode(endStopPin, INPUT); 
+  if((ms1Pin >=0) && (ms2Pin >=0))
+  {
+	  pinMode(ms1Pin, OUTPUT);  
+	  pinMode(ms2Pin, OUTPUT); 	
+	  digitalWrite(ms1Pin, vms1);    
+	  digitalWrite(ms2Pin, vms2);
+  }
 
   digitalWrite(dirPin, LOW);
   digitalWrite(stepPin, LOW);
-    
-  digitalWrite(ms1Pin, vms1);    
-  digitalWrite(ms2Pin, vms2);
  
   currentStepcount=0;
   targetStepcount=0;
