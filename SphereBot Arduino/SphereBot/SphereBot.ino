@@ -451,7 +451,7 @@ void process_commands(char command[], int command_length) // deals with standard
 
   //done processing commands
   //if (Serial.available() <= 0) {
-  Serial.print("ok:");
+  Serial.print("ok");
   //Serial.println(command);
   Serial.print("\n");
   //}
