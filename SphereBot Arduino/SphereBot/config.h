@@ -10,6 +10,7 @@
 #define YAXIS_ENABLE_PIN 21
 #define YAXIS_MS1_PIN -1
 #define YAXIS_MS2_PIN -1
+#define YAXIS_MS3_PIN -1
 #define YAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
 #define YAXIS_VMS1 HIGH
 #define YAXIS_VMS2 HIGH
@@ -25,6 +26,7 @@
 #define XAXIS_ENABLE_PIN 2
 #define XAXIS_MS1_PIN -1
 #define XAXIS_MS2_PIN -1
+#define XAXIS_MS3_PIN -1
 #define XAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
 #define XAXIS_VMS1 HIGH
 #define XAXIS_VMS2 HIGH
