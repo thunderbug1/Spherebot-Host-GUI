@@ -74,7 +74,7 @@ const double maxFeedrate = 2000.;
 
 void setup()
 {
-    Serial.begin(256000);
+    Serial.begin(BAUDRATE);
     Serial.print(VERSIONCODE);
     Serial.print("\n");
     

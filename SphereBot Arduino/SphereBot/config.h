@@ -1,3 +1,5 @@
+#define BAUDRATE 256000
+
 /*
  * PINS
  */
