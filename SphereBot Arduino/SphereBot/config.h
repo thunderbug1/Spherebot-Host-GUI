@@ -46,7 +46,8 @@
 
 #define DEFAULT_ZOOM_FACTOR 0.1808 // With a Zoom-Faktor of .65, I can print gcode for Makerbot Unicorn without changes. 
                                // The zoom factor can be also manipulated by the propretiary code M402
-     
+#define X_SCALING_FACTOR    1.71/2    //this factor is for correction to meet the unicorn coordinates 
+#define Y_SCALING_FACTOR    1
 /*
  * Microstepping Information
  */     

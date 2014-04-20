@@ -67,6 +67,8 @@ double currentOffsetY = 0.;
 boolean absoluteMode = true;
 double feedrate = 300.; // mm/minute
 double zoom = DEFAULT_ZOOM_FACTOR;
+double xscaling = X_SCALING_FACTOR;
+double yscaling = Y_SCALING_FACTOR;
 
 const double maxFeedrate = 2000.;
 
@@ -297,10 +299,10 @@ void process_commands(char command[], int command_length) // deals with standard
       
       double xVal;
       boolean hasXVal = getValue('X', command, &xVal);
-      if(hasXVal) xVal*=zoom*1.71/2;                              //this factor is for correction to meet the unicorn coordinates    
+      if(hasXVal) xVal*=zoom*xscaling;                                 
       double yVal;
       boolean hasYVal = getValue('Y', command, &yVal);
-      if(hasYVal) yVal*=zoom;
+      if(hasYVal) yVal*=zoom*yscaling;
       double iVal;
       boolean hasIVal = getValue('I', command, &iVal);
       if(hasIVal) iVal*=zoom;
