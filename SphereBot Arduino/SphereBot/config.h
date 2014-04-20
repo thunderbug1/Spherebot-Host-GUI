@@ -11,6 +11,7 @@
 #define YAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
 #define YAXIS_VMS1 HIGH
 #define YAXIS_VMS2 HIGH
+#define YAXIS_VMS3 HIGH
 #define YAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define YAXIS_MAX_STEPCOUNT 0
 #define YAXIS_STEPS_PER_FULL_ROTATION 200.0
@@ -25,6 +26,7 @@
 #define XAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
 #define XAXIS_VMS1 HIGH
 #define XAXIS_VMS2 HIGH
+#define XAXIS_VMS3 HIGH
 #define XAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define XAXIS_MAX_STEPCOUNT 0
 #define XAXIS_STEPS_PER_FULL_ROTATION 200.0
@@ -45,13 +47,14 @@
  * Microstepping Information
  */     
                                
-//ms1 and ms2 are optional. You can simply make these settings by hardwiring the pins to high or low
+//MS1, MS2 and MS3 are optional. You can simply make these settings by hardwiring the pins to high or low
  
-   /*  ms1  |  ms2
-    ----------------
-      L    |  L        ->  Full Step
-      H    |  L        ->  Half Step 
-      L    |  H        ->  Quarter Step
-      H    |  H        ->  Sixteenth Step
+   /* MS1  |  MS2  |  MS3      Microstepping Resolution
+    -----------------------
+      L    |  L    |  L     ->  Full Step
+      H    |  L    |  L     ->  Half Step 
+      L    |  H    |  L     ->  Quarter Step
+      H    |  H    |  L     ->  Eighth Step
+      H    |  H    |  H     ->  Sixteenth Step
   */
 
