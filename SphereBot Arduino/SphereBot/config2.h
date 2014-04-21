@@ -1,5 +1,3 @@
-#define BAUDRATE 115200
-
 /*
  * PINS
  */
