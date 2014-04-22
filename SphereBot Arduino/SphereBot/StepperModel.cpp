@@ -22,7 +22,7 @@
 /*
  * inEnablePin < 0 => No Endstop
  */
-StepperModel::StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inEndStopPin,int inMs1Pin, int inMs2Pin, bool vms1,bool vms2,
+StepperModel::StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inEndStopPin, int inMs1Pin, int inMs2Pin, int inMs3Pin, bool vms1, bool vms2, bool vms3,
         long minSC, long maxSC,
         double in_kStepsPerRevolution, int in_kMicroStepping)
 {
@@ -35,6 +35,7 @@ StepperModel::StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inE
   endStopPin = inEndStopPin;
   ms1Pin = inMs1Pin;
   ms2Pin = inMs2Pin;
+  ms3Pin = inMs3Pin;
     
   minStepCount=minSC;
   maxStepCount=maxSC;
@@ -44,12 +45,20 @@ StepperModel::StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inE
   pinMode(enablePin, OUTPUT);  
   if(endStopPin>=0)
     pinMode(endStopPin, INPUT); 
-  if((ms1Pin >=0) && (ms2Pin >=0))
+  if((ms1Pin >=0))
   {
-	  pinMode(ms1Pin, OUTPUT);  
-	  pinMode(ms2Pin, OUTPUT); 	
+	  pinMode(ms1Pin, OUTPUT);  	
 	  digitalWrite(ms1Pin, vms1);    
-	  digitalWrite(ms2Pin, vms2);
+  }
+  if((ms2Pin >=0))
+  {
+	  pinMode(ms2Pin, OUTPUT);  	
+	  digitalWrite(ms2Pin, vms1);    
+  }
+  if((ms3Pin >=0))
+  {
+	  pinMode(ms3Pin, OUTPUT);  	
+	  digitalWrite(ms3Pin, vms1);    
   }
 
   digitalWrite(dirPin, LOW);

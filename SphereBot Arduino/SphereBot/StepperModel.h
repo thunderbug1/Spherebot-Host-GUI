@@ -30,6 +30,8 @@ private:
   int enablePin;
   int ms1Pin;
   int ms2Pin;
+  int ms3Pin;
+  
   int endStopPin;
   
   long minStepCount;
@@ -51,7 +53,7 @@ public:
   volatile long counter;
   double targetPosition;
   
- StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inEndStopPin,int inMs1Pin, int inMs2Pin,bool vms1,bool vms2,
+ StepperModel(int inDirPin, int inStepPin, int inEnablePin, int inEndStopPin,int inMs1Pin, int inMs2Pin, int inMs3Pin, bool vms1, bool vms2, bool vms3,
         long minSC, long maxSC,
         double in_kStepsPerRevolution, int in_kMicroStepping);
   
