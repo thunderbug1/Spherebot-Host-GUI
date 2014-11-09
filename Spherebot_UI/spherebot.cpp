@@ -18,7 +18,8 @@ bool spherebot::connectWithBot()
     }
 
     //we set the port properties
-    port->setBaudRate(256000);//modify the port settings on your own
+    //port->setBaudRate(115200);//modify the port settings on your own
+    port->setBaudRate(256000);
     port->setFlowControl(QSerialPort::NoFlowControl);
     port->setParity(QSerialPort::NoParity);
     port->setDataBits(QSerialPort::Data8);

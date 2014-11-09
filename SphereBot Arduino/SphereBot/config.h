@@ -1,3 +1,4 @@
+//#define BAUDRATE 115200
 #define BAUDRATE 256000
 
 /*
@@ -18,7 +19,7 @@
 #define YAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define YAXIS_MAX_STEPCOUNT 0
 #define YAXIS_STEPS_PER_FULL_ROTATION 200.0
-#define YAXIS_MICROSTEPPING 8
+#define YAXIS_MICROSTEPPING 16
 
 //X-Axis
 #define XAXIS_DIR_PIN 10
@@ -34,7 +35,7 @@
 #define XAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define XAXIS_MAX_STEPCOUNT 0
 #define XAXIS_STEPS_PER_FULL_ROTATION 200.0
-#define XAXIS_MICROSTEPPING 8
+#define XAXIS_MICROSTEPPING 2
 
 #define SERVO_PIN 13
 
@@ -46,7 +47,7 @@
 
 #define DEFAULT_ZOOM_FACTOR 0.1808 // With a Zoom-Faktor of .65, I can print gcode for Makerbot Unicorn without changes. 
                                // The zoom factor can be also manipulated by the propretiary code M402
-#define X_SCALING_FACTOR    1.71/2    //this factor is for correction to meet the unicorn coordinates 
+#define X_SCALING_FACTOR    1.65/2    //this factor is for correction to meet the unicorn coordinates 
 #define Y_SCALING_FACTOR    1
 /*
  * Microstepping Information

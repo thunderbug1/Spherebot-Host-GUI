@@ -445,7 +445,7 @@ void MainWindow::on_servoSlider_sliderMoved(int position)
 {
     if(sendState != Sending)
     {
-        QString tmp = ("M300 S" + QString::number(position)+"\n");
+        QString tmp = ("M300 S" + QString::number(position));
         bot->send(tmp);
     }
 }
@@ -455,7 +455,7 @@ void MainWindow::on_servospinBox_valueChanged(int arg1)
     if(sendState != Sending)
     {
         ui->servoSlider->setValue(arg1);
-        QString tmp = ("M300 S" + QString::number(arg1)+"\n");
+        QString tmp = ("M300 S" + QString::number(arg1));
         bot->send(tmp);
     }
 }
@@ -490,7 +490,7 @@ void MainWindow::on_eggRotationBox_valueChanged(int arg1)
 {
     if(sendState != Sending)
     {
-        QString tmp = ("G1 X" + QString::number((double)arg1)+"\n");
+        QString tmp = ("G1 X" + QString::number((double)arg1));
         bot->send(tmp);
         ui->eggSlider->setValue(arg1);
     }
@@ -504,6 +504,7 @@ void MainWindow::on_loadFileButton_clicked()        //== Abort Button
         if(!curDir.absolutePath().isEmpty())
         {
             fileName = QFileDialog::getOpenFileName(this,"",curDir.absolutePath());
+            ui->saveFileButton->setEnabled(false);
         }
         else
         {

@@ -38,7 +38,9 @@ QString removeComments(QString intext)
                 }
             }
         }
-        ///////////////////////////////////////////////////    
+    /////////////////////////////////////////////////// remove last line if empty
+    if(outTmp2.endsWith("\n")) outTmp2.chop(1);
+    ///////////////////////////////////////////////////
     return outTmp2;
 }
 

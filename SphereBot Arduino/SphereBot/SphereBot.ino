@@ -220,7 +220,7 @@ void get_command() // gets commands from serial connection and then calls up sub
         {
           clear_buffer();
           Serial.flush();
-          Serial.print("Overflow Error");
+          Serial.print("Overflow Error\n");
         }
       }
       else
@@ -274,16 +274,16 @@ void process_commands(char command[], int command_length) // deals with standard
   for(j = 0; command[j] != '*' && command[j] != NULL; j++)
   cs = cs ^ command[j];
   cs &= 0xff;  // Defensive programming...
-  
+
   if(!(cs == (int)getcs || hasCS == false)) // if checksum does not match
   {
-    Serial.print("rs ");
-    Serial.print((int)nVal);
+    Serial.print("rs");
+    //Serial.print((int)nVal);
     Serial.print("\n");
   }
   else	//continue if checksum matches or none detected
   {
-    //Serial.println("checksum match");
+    //Serial.println("checksum match ");
     j=0;
     while (j < MAX_CMD_SIZE ) 
     {
@@ -465,12 +465,6 @@ void process_commands(char command[], int command_length) // deals with standard
   //}
   
   }
-  else 
-  {
-    Serial.print("rs ");
-    Serial.print((int)nVal);
-    Serial.print("\n");
-  }
 }
 
 /* This code was ported from the Makerbot/ReplicatorG java sources */
@@ -560,3 +554,4 @@ void drawArc(double centerX, double centerY, double endpointX, double endpointY,
 
 /* Make life easier for vim users */
 /* vim:set filetype=cpp: */
+
