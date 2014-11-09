@@ -38,7 +38,7 @@
 
 #define TIMER_DELAY 1024
 
-#define VERSIONCODE "Spherebot 2.0"
+#define VERSIONCODE "Spherebot 2.1"
 
 StepperModel xAxisStepper(XAXIS_DIR_PIN, XAXIS_STEP_PIN, XAXIS_ENABLE_PIN, XAXIS_ENDSTOP_PIN, XAXIS_MS1_PIN, XAXIS_MS2_PIN, XAXIS_MS3_PIN, XAXIS_VMS1, XAXIS_VMS2, XAXIS_VMS3,
         XAXIS_MIN_STEPCOUNT, XAXIS_MAX_STEPCOUNT, XAXIS_STEPS_PER_FULL_ROTATION, XAXIS_MICROSTEPPING);
@@ -65,7 +65,7 @@ boolean comment_mode = false;
 double currentOffsetX = 0.;
 double currentOffsetY = 0.;
 boolean absoluteMode = true;
-double feedrate = 300.; // mm/minute
+double feedrate = 1000.; // mm/minute
 double zoom = DEFAULT_ZOOM_FACTOR;
 double xscaling = X_SCALING_FACTOR;
 double yscaling = Y_SCALING_FACTOR;
@@ -275,7 +275,13 @@ void process_commands(char command[], int command_length) // deals with standard
   cs = cs ^ command[j];
   cs &= 0xff;  // Defensive programming...
   
-  if(cs == (int)getcs || hasCS == false) //continue if checksum matches or none detected
+  if(!(cs == (int)getcs || hasCS == false)) // if checksum does not match
+  {
+    Serial.print("rs ");
+    Serial.print((int)nVal);
+    Serial.print("\n");
+  }
+  else	//continue if checksum matches or none detected
   {
     //Serial.println("checksum match");
     j=0;
