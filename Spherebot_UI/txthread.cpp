@@ -76,10 +76,7 @@ void txThread::sendNext()
                 emit layerTransmitted();
             }
         }
-        tmp.append(" ");
-        tmp.append(bot->generateChecksumString(tmp));
-        tmp.append("\n");
-        qDebug()<<"sending: " << tmp << endl;
+        //qDebug()<<"sending: " << tmp << endl;
         bot->send(tmp);
         double progress= (double) lineCounter/(double)lineMax;
         emit progressChanged(progress*100);

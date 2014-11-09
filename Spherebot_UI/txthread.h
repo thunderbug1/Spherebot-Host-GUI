@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QString>
+#include <string.h>
 
 class txThread : public QThread
 {

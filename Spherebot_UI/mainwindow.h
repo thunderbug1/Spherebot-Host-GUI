@@ -89,7 +89,7 @@ private:
     void refreshLayerNames(QString file);
     void SetBotToHomePosition();
     QString curFile;
-    QString curDir;
+    QDir curDir;
     SendStates sendState;
 
     Ui::MainWindow *ui;

@@ -5,6 +5,7 @@ spherebot::spherebot(QObject *parent) :
 {
     port = new QSerialPort();
     port_connected = false;
+    lastSentLine = "";
 }
 
 bool spherebot::connectWithBot()
@@ -40,13 +41,36 @@ bool spherebot::disconnectWithBot()
     return 1;
 }
 
+QString spherebot::generateChecksumString(QString msg)
+{
+    QString result = "*";   //"*" is the startcharacter of the checksum
+    std::string msgString= msg.toStdString();
+    int cs = 0;
+    for(int i=0;i<msg.size();i++)
+    {
+        cs = cs ^ (int)msgString[i];
+        cs &= 0xff;  // Defensive programming...
+    }
+    result += QString::number(cs);
+    qDebug()<<"checksum is: "<< cs <<endl;
+    return result;
+}
+
 bool spherebot::send(QString cmd)
 {
     if(port->isOpen())
     {
         port->flush();
-        if(cmd[cmd.size()-1] != '\n') cmd.append("\n");
-        //qDebug()<<"Sending: " + cmd;
+        lastSentLine.clear();
+        lastSentLine.append(cmd);
+        if(cmd.size() != 0)
+        {
+            if(cmd[cmd.size()-1] == '\n') cmd.chop(1);
+        }
+        cmd.append(" ");
+        cmd.append(generateChecksumString(cmd));
+        qDebug()<<"Sending: " + cmd;
+        cmd.append("\n");
         port->write((const char*)cmd.toUtf8(),cmd.length());
     }
     else
@@ -57,6 +81,11 @@ bool spherebot::send(QString cmd)
     cmd.chop(1);
     emit dataSent(cmd);
     return true;
+}
+
+bool spherebot::repeatLastLine()
+{
+    return send(lastSentLine);
 }
 
 bool spherebot::isConnected()

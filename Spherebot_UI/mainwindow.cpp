@@ -82,6 +82,7 @@ bool MainWindow::LoadSettings()
     settings.beginGroup("settings");
     curFile = settings.value("fileName", "").toString();
     curDir = settings.value("currentDirectory", "").toString();
+    qDebug() << "curdir"<< curDir<<endl;
     if(!curFile.isEmpty())
     {
         if(QFile::exists(curFile))
@@ -115,7 +116,7 @@ void MainWindow::SaveSettings()
     QSettings settings("thunderbug","SpherebotSettings");
     settings.beginGroup("settings");
     settings.setValue("fileName", curFile);
-    settings.setValue("currentDirectory",curDir);
+    settings.setValue("currentDirectory",curDir.absolutePath());
     settings.setValue("PortName", ui->portBox->currentText());
     settings.endGroup();
 }
@@ -157,7 +158,8 @@ void MainWindow::loadFile(const QString &fileName)
                              .arg(file.errorString()));
         return;
     }
-    curDir = QFileInfo(fileName).absoluteFilePath();
+    curFile = QFileInfo(fileName).absoluteFilePath();
+    curDir = QFileInfo(fileName).absoluteDir();
     statusBar()->showMessage(tr("File loaded"), 2000);
 
     QString code = file.readAll();
@@ -218,7 +220,7 @@ void MainWindow::interpretGcode(QString code)       //for future gcode interpret
 
         if(state == 1)//drawing
         {
-
+            //to do (Gcode drawer widget)
         }
     }
 }
@@ -251,6 +253,10 @@ void MainWindow::receiveData()
         line.chop(1);
         if(line != "")
         {
+            if(line.contains("rs"))
+            {
+                bot->repeatLastLine();
+            }
             ui->rxList->insertItem(0,line);
             delete ui->rxList->item(MAXLISTITEMS);
         }
@@ -495,9 +501,9 @@ void MainWindow::on_loadFileButton_clicked()        //== Abort Button
     if(sendState == Idle)
     {
         QString fileName;
-        if(!curDir.isEmpty())
+        if(!curDir.absolutePath().isEmpty())
         {
-            fileName = QFileDialog::getOpenFileName(this,"",curDir);
+            fileName = QFileDialog::getOpenFileName(this,"",curDir.absolutePath());
         }
         else
         {
@@ -671,8 +677,9 @@ void MainWindow::on_restartButton_clicked()
 void MainWindow::SetBotToHomePosition()
 {
     QString tmp = ("G1 Y0");
-    tmp.append("\nM300 S" + QString::number(penUpAngle));
-    qDebug()<<"to print: "<<tmp;
+    bot->send(tmp);
+    tmp.clear();
+    tmp.append("M300 S" + QString::number(penUpAngle));
     bot->send(tmp);
 }
 
@@ -680,7 +687,7 @@ void MainWindow::on_servoFeedrateSlider_valueChanged(int value)
 {
     if(sendState != Sending)
     {
-        QString tmp = ("G1 F" + QString::number(value)+"\n");
+        QString tmp = ("G1 F" + QString::number(value));
         bot->send(tmp);
     }
 }
@@ -689,10 +696,10 @@ void MainWindow::on_setDiameterButton_clicked()
 {
     if(sendState != Sending)
     {
-        QString tmp = ("M400 S" + QString::number(ui->diameterSlider->value())+"\n");
+        QString tmp = ("M400 S" + QString::number(ui->diameterSlider->value()));
         bot->send(tmp);
         tmp.clear();
-        tmp = ("M401 S" + QString::number(ui->diameterSlider->value())+"\n");
+        tmp = ("M401 S" + QString::number(ui->diameterSlider->value()));
         bot->send(tmp);
     }
 }

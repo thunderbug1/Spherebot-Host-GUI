@@ -17,6 +17,8 @@ public:
 
     bool isConnected();
     bool send(QString cmd);
+    bool repeatLastLine();
+    QString generateChecksumString(QString msg);
     explicit spherebot(QObject *parent = 0);
 signals:
     void dataSent(QString data);
@@ -26,6 +28,7 @@ public slots:
     bool disconnectWithBot();
 private:
     bool port_connected;
+    QString lastSentLine;
 };
 
 #endif // SPHEREBOT_H
