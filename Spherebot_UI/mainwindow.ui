@@ -302,6 +302,9 @@
           <property name="minimum">
            <number>23</number>
           </property>
+          <property name="maximum">
+           <number>120</number>
+          </property>
           <property name="value">
            <number>35</number>
           </property>

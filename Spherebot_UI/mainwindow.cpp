@@ -514,7 +514,7 @@ void MainWindow::on_loadFileButton_clicked()        //== Abort Button
             loadFile(fileName);
         }
     }
-    else
+    else        //abort print
     {
         setState(Idle);
     }
@@ -556,9 +556,11 @@ void MainWindow::setState(MainWindow::SendStates state)
     case(Idle):
         switch(sendState)
         {
-        case(Sending):      //from Sending to Idle
+        case(Sending):      //from Sending to Idle  == abort the print
             //same code as below
             ui->fileSendProgressBar->setValue(0);
+            ui->sendString->setEnabled(true);
+            bot->send("M 18");      //disable motors
         case(Stoped):   //from Stoped to Idle
             disconnectTranceiver();
             this->Transceiver.resetState();

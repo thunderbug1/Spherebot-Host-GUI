@@ -296,6 +296,7 @@ public:
         servospinBox = new QSpinBox(layoutWidget);
         servospinBox->setObjectName(QStringLiteral("servospinBox"));
         servospinBox->setMinimum(23);
+        servospinBox->setMaximum(120);
         servospinBox->setValue(35);
 
         verticalLayout_3->addWidget(servospinBox);
