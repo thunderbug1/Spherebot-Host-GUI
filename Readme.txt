@@ -57,4 +57,7 @@ Warning for custom Firmwares:
 
 3.) Print stuff: Sources - https://github.com/matthewbeckler/HackPittsburghMedia
 
+    Here is a Version of Inkscape portable which has the needed Extensions for the 
+    Spherebot preinstalled: https://github.com/thunderbug1/Inkscape_portable_for_Spherebot
+
 PS:Have fun with it ;)
