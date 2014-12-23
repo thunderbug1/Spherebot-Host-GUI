@@ -428,7 +428,7 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>275</width>
+      <width>371</width>
       <height>30</height>
      </rect>
     </property>
@@ -444,12 +444,19 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="baudBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="portBox"/>
      </item>
      <item>
       <widget class="QPushButton" name="resetButton">
        <property name="text">
-        <string>R</string>
+        <string>Reset</string>
        </property>
       </widget>
      </item>

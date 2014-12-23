@@ -1,8 +1,9 @@
 #include "txthread.h"
 
-txThread::txThread()
+txThread::txThread(spherebot *uibot)
 {
     resetState();
+    bot = uibot;
 }
 
 txThread::~txThread()
@@ -44,14 +45,13 @@ QString removeComments(QString intext)
     return outTmp2;
 }
 
-void txThread::set(QString intextfile,spherebot &uibot)
+void txThread::set(QString intextfile)
 {
     lineCounter = 0;
     textfile.clear();
     textfile.append(removeComments(intextfile));
     //qDebug()<<"The textfile String is: \n\n" + textfile + "\n\nENDE\n\n";
     lineMax = textfile.count("\n");
-    bot = &uibot;
 }
 
 void txThread::run()
@@ -78,7 +78,7 @@ void txThread::sendNext()
                 emit layerTransmitted();
             }
         }
-        //qDebug()<<"sending: " << tmp << endl;
+        //qDebug()<<"sending: " << tmp << endl;/////////////////////////////
         bot->send(tmp);
         double progress= (double) lineCounter/(double)lineMax;
         emit progressChanged(progress*100);

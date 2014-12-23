@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QTimer>
 #include "txthread.h"
+#include "rxthread.h"
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QGraphicsSvgItem>
@@ -44,7 +45,7 @@ public:
     void initUI();
     void setState(SendStates state);
 public slots:
-    void receiveData();
+    void processReceivedData(QString line);
     void sendDataUI(QString data);
     void finishedTransmission();
     void refreshSendProgress(int value);
@@ -79,6 +80,8 @@ private slots:
 
     void on_sendString_textChanged(const QString &arg1);
 
+    void on_baudBox_currentIndexChanged(int index);
+
 private:
 
     void loadFile(const QString &fileName);
@@ -97,7 +100,8 @@ private:
     QList<QSerialPortInfo> portList;
     spherebot *bot;
     QTimer *rxTimer;
-    txThread Transceiver;
+    txThread *Transceiver;
+    rxThread *Receiver;
     QGraphicsScene *scene;
     QList<QString> layerNames;        //layerFile, layerColorString
     int layerIndex;

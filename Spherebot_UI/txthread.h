@@ -1,6 +1,5 @@
 #ifndef TXTHREAD_H
 #define TXTHREAD_H
-#include <QThread>
 #include <QString>
 #include "spherebot.h"
 #include <QMessageBox>
@@ -12,8 +11,8 @@ class txThread : public QThread
 {
     Q_OBJECT
 public:
-    txThread();
-    void set(QString textfile,spherebot &bot);
+    txThread(spherebot *);
+    void set(QString textfile);
     void run();
     ~txThread();
     int getLineCounter();

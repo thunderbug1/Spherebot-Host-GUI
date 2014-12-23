@@ -1,5 +1,7 @@
+//#define BAUDRATE 9600
+#define BAUDRATE 57600
 //#define BAUDRATE 115200
-#define BAUDRATE 256000
+//#define BAUDRATE 256000
 
 /*
  * PINS

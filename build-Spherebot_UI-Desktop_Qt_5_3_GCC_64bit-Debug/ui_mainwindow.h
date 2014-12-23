@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.2.1
+** Created by: Qt User Interface Compiler version 5.3.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -81,6 +81,7 @@ public:
     QWidget *layoutWidget1;
     QHBoxLayout *horizontalLayout;
     QPushButton *connectButton;
+    QComboBox *baudBox;
     QComboBox *portBox;
     QPushButton *resetButton;
     QWidget *layoutWidget2;
@@ -388,7 +389,7 @@ public:
 
         layoutWidget1 = new QWidget(centralWidget);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(20, 20, 275, 30));
+        layoutWidget1->setGeometry(QRect(20, 20, 371, 30));
         horizontalLayout = new QHBoxLayout(layoutWidget1);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -399,6 +400,12 @@ public:
         connectButton->setCheckable(false);
 
         horizontalLayout->addWidget(connectButton);
+
+        baudBox = new QComboBox(layoutWidget1);
+        baudBox->setObjectName(QStringLiteral("baudBox"));
+        baudBox->setEnabled(true);
+
+        horizontalLayout->addWidget(baudBox);
 
         portBox = new QComboBox(layoutWidget1);
         portBox->setObjectName(QStringLiteral("portBox"));
@@ -657,7 +664,7 @@ public:
         penslider->setText(QApplication::translate("MainWindow", "Pen Rotation", 0));
         penslider_2->setText(QApplication::translate("MainWindow", "Egg Rotation", 0));
         connectButton->setText(QApplication::translate("MainWindow", "Connect", 0));
-        resetButton->setText(QApplication::translate("MainWindow", "R", 0));
+        resetButton->setText(QApplication::translate("MainWindow", "Reset", 0));
         sendButton->setText(QApplication::translate("MainWindow", "Send", 0));
         label_2->setText(QApplication::translate("MainWindow", "Transceived Data", 0));
         label_3->setText(QApplication::translate("MainWindow", "Received Data", 0));

@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     sendState = Idle;
     this->bot = new spherebot();
+    Receiver = new rxThread(this->bot);
+    Transceiver = new txThread(this->bot);
 
     penDownAngle = DEFAULTPENDOWN;
     penUpAngle = DEFAULTPENUP;
@@ -24,10 +26,11 @@ MainWindow::MainWindow(QWidget *parent) :
     layerIndex = 0;
 
     connect( this->bot, SIGNAL(dataSent(QString)),this, SLOT(sendDataUI(QString)));
-    connect(&Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
-    connect(&Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
+    connect(Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
+    connect(Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
     connect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
-    connect(&Transceiver,SIGNAL(layerTransmitted()),this,SLOT(finishedLayer()));
+    connect(Transceiver,SIGNAL(layerTransmitted()),this,SLOT(finishedLayer()));
+    connect(Receiver, SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
 
     initUI();
 
@@ -38,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(&FitInTimer,SIGNAL(timeout()),this,SLOT(fitgraphicsView()));
         FitInTimer.start();
     }
+
     qDebug()<<"mainwindow initialised: ";
 }
 
@@ -65,6 +69,12 @@ void MainWindow::initUI()
                                          QMessageBox::Yes|QMessageBox::No);
     //restartLayerMsgBox->setButtonText(QMessageBox::Yes,"OK");
     //restartLayerMsgBox->setButtonText(QMessageBox::No,"No");
+
+
+
+    //ui->baudBox->setEnabled(true);
+
+    //init the baudBox
 }
 
 MainWindow::~MainWindow()
@@ -245,21 +255,16 @@ void MainWindow::refreshLayerNames(QString file)
     qDebug()<<"This are the layernames: "<< layerNames;
 }
 
-void MainWindow::receiveData()
+void MainWindow::processReceivedData(QString line)
 {
-    if(bot->port->canReadLine())
+    if(line != "")
     {
-        QString line = bot->port->readLine(1024);
-        line.chop(1);
-        if(line != "")
+        if(line.contains("rs"))
         {
-            if(line.contains("rs"))
-            {
-                bot->repeatLastLine();
-            }
-            ui->rxList->insertItem(0,line);
-            delete ui->rxList->item(MAXLISTITEMS);
+            bot->repeatLastLine();
         }
+        ui->rxList->insertItem(0,line);
+        delete ui->rxList->item(MAXLISTITEMS);
     }
 }
 
@@ -299,7 +304,7 @@ void MainWindow::finishedLayer()
 void MainWindow::finishedTransmission()
 {
     disconnectTranceiver();
-    this->Transceiver.resetState();
+    this->Transceiver->resetState();
     ui->sendFileButton->setText("Send File");
     ui->loadFileButton->setText("Load File");
     ui->controllBox->setEnabled(true);
@@ -382,11 +387,13 @@ void MainWindow::on_connectButton_clicked()
         sendState = Idle;
         ui->sendFileButton->setText("Send File");
         ui->sendFileButton->setEnabled(false);
+        Receiver->exit();
     }
     else if(bot->connectWithBot(ui->portBox->currentText()))
     {
         //successfully connected
-        connect( this->bot->port, SIGNAL(readyRead()), this, SLOT(receiveData()));
+        Receiver->run();
+        connect( this->bot->port, SIGNAL(readyRead()), Receiver, SLOT(receiveData()));
         ui->connectButton->setChecked(true);
         ui->controllBox->setEnabled(true);
         ui->portBox->setEnabled(false);
@@ -542,12 +549,12 @@ void MainWindow::on_fileTextEdit_textChanged()
 
 void MainWindow::connectTranceiver()
 {
-    connect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
+    connect(this->bot->port,SIGNAL(readyRead()),Transceiver,SLOT(sendNext()));
 }
 
 void MainWindow::disconnectTranceiver()
 {
-    disconnect(this->bot->port,SIGNAL(readyRead()),(&this->Transceiver),SLOT(sendNext()));
+    disconnect(this->bot->port,SIGNAL(readyRead()),Transceiver,SLOT(sendNext()));
 }
 
 void MainWindow::setState(MainWindow::SendStates state)
@@ -561,10 +568,19 @@ void MainWindow::setState(MainWindow::SendStates state)
             //same code as below
             ui->fileSendProgressBar->setValue(0);
             ui->sendString->setEnabled(true);
+            if(bot->isConnected()){
+                ui->sendFileButton->setText("Send File");
+                ui->restartButton->setEnabled(true);
+            }
+            else{
+                ui->restartButton->setEnabled(false);
+            }
+            ui->loadFileButton->setText("Load File");
+            ui->loadFileButton->setEnabled(true);
             bot->send("M 18");      //disable motors
         case(Stoped):   //from Stoped to Idle
             disconnectTranceiver();
-            this->Transceiver.resetState();
+            this->Transceiver->resetState();
             ui->sendFileButton->setText("Send File");
             ui->loadFileButton->setText("Load File");
             ui->restartButton->setEnabled(false);
@@ -591,8 +607,8 @@ void MainWindow::setState(MainWindow::SendStates state)
             ui->controllBox->setEnabled(false);
             ui->sendButton->setEnabled(false);
             ui->sendString->setEnabled(false);
-            Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
-            Transceiver.run();
+            Transceiver->set(ui->fileTextEdit->toPlainText());
+            Transceiver->run();
             statusBar()->showMessage(tr("Sending File"));
             break;
         case(Stoped):   //continue
@@ -601,7 +617,7 @@ void MainWindow::setState(MainWindow::SendStates state)
 #ifdef Watchdog
             Transceiver.watchdogTimer->start();
 #endif
-            this->Transceiver.sendNext();
+            this->Transceiver->sendNext();
             ui->loadFileButton->setEnabled(false);
             ui->resetButton->setEnabled(true);
             ui->loadFileButton->setText("Abort");
@@ -662,7 +678,7 @@ void MainWindow::on_sendFileButton_clicked()
 void MainWindow::on_restartButton_clicked()
 {
     sendState = Sending;
-    Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
+    Transceiver->set(ui->fileTextEdit->toPlainText());
     connectTranceiver();
     ui->controllBox->setEnabled(false);
     ui->fileSendProgressBar->setEnabled(true);
@@ -672,8 +688,8 @@ void MainWindow::on_restartButton_clicked()
     ui->sendButton->setEnabled(false);
     ui->sendString->setEnabled(false);
     ui->loadFileButton->setEnabled(false);
-    Transceiver.set(ui->fileTextEdit->toPlainText(),(*this->bot));
-    Transceiver.run();
+    Transceiver->set(ui->fileTextEdit->toPlainText());
+    Transceiver->run();
     statusBar()->showMessage(tr("Sending File"));
 }
 
@@ -740,4 +756,9 @@ void MainWindow::on_sendString_textChanged(const QString &arg1)
     {
         ui->sendButton->setEnabled(false);
     }
+}
+
+void MainWindow::on_baudBox_currentIndexChanged(int index)
+{
+
 }
