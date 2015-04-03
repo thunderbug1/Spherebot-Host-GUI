@@ -25,12 +25,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     layerIndex = 0;
 
-    connect( this->bot, SIGNAL(dataSent(QString)),this, SLOT(sendDataUI(QString)));
-    connect(Transceiver,SIGNAL(progressChanged(int)),this,SLOT(refreshSendProgress(int)));
-    connect(Transceiver,SIGNAL(fileTransmitted()),this,SLOT(finishedTransmission()));
-    connect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
-    connect(Transceiver,SIGNAL(layerTransmitted()),this,SLOT(finishedLayer()));
-    connect(Receiver, SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
+    connect( this->bot, SIGNAL(dataSent(QString)),this,     SLOT(sendDataUI(QString)));
+    connect(Transceiver,SIGNAL(progressChanged(int)),this,  SLOT(refreshSendProgress(int)));
+    connect(Transceiver,SIGNAL(fileTransmitted()),this,     SLOT(finishedTransmission()));
+    connect(this->bot,  SIGNAL(dataSent(QString)),this,     SLOT(interpretSentString(QString)));
+    connect(Transceiver,SIGNAL(layerTransmitted()),this,    SLOT(finishedLayer()));
+    connect(Receiver,   SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
+    connect(Receiver,   SIGNAL(lineReceived(QString)),this->bot, SLOT(processAnswer(QString)));
 
     initUI();
 
@@ -259,10 +260,6 @@ void MainWindow::processReceivedData(QString line)
 {
     if(line != "")
     {
-        if(line.contains("rs"))
-        {
-            bot->repeatLastLine();
-        }
         ui->rxList->insertItem(0,line);
         delete ui->rxList->item(MAXLISTITEMS);
     }
@@ -387,6 +384,7 @@ void MainWindow::on_connectButton_clicked()
         sendState = Idle;
         ui->sendFileButton->setText("Send File");
         ui->sendFileButton->setEnabled(false);
+        ui->restartButton->setEnabled(false);
         Receiver->exit();
     }
     else if(bot->connectWithBot(ui->portBox->currentText()))
@@ -399,6 +397,7 @@ void MainWindow::on_connectButton_clicked()
         ui->portBox->setEnabled(false);
         ui->resetButton->setEnabled(false);
         ui->connectButton->setText("Disconnect");
+        ui->loadFileButton->setText("Load File");
         if(!ui->fileTextEdit->toPlainText().isEmpty()) ui->sendFileButton->setEnabled(true);
     }
     else
@@ -421,10 +420,14 @@ void MainWindow::resetPortList()
 void MainWindow::on_resetButton_clicked()
 {
     resetPortList();
+    ui->loadFileButton->setEnabled(true);
+    ui->loadFileButton->setText("Load File");
 }
 
 void MainWindow::sendDataUI(QString data)
 {
+    while(data.endsWith('\n')) data.chop(1);
+
     ui->txList->insertItem(0,data);
     delete ui->txList->item(MAXLISTITEMS);
 }
@@ -546,15 +549,14 @@ void MainWindow::on_fileTextEdit_textChanged()
     }
 }
 
-
 void MainWindow::connectTranceiver()
 {
-    connect(this->bot->port,SIGNAL(readyRead()),Transceiver,SLOT(sendNext()));
+    connect(this->bot,SIGNAL(dataSent(QString)),Transceiver,SLOT(sendNext()));
 }
 
 void MainWindow::disconnectTranceiver()
 {
-    disconnect(this->bot->port,SIGNAL(readyRead()),Transceiver,SLOT(sendNext()));
+    disconnect(this->bot,SIGNAL(dataSent(QString)),Transceiver,SLOT(sendNext()));
 }
 
 void MainWindow::setState(MainWindow::SendStates state)

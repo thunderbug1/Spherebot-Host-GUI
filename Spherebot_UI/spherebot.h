@@ -8,6 +8,9 @@
 #include <QtGui>
 #include <iostream>
 #include <QtCore/QCoreApplication>
+#include <QVector>
+
+#define SENT_LINE_BUFFER_MAX_SIZE 30
 
 class spherebot : public QObject
 {
@@ -17,8 +20,9 @@ public:
 
     bool isConnected();
     bool send(QString cmd);
-    bool repeatLastLine();
     QString generateChecksumString(QString msg);
+    void resendLine();
+
     explicit spherebot(QObject *parent = 0);
 signals:
     void dataSent(QString data);
@@ -26,9 +30,12 @@ public slots:
     bool connectWithBot(QString portName);
     bool connectWithBot();
     bool disconnectWithBot();
+    void processAnswer(QString answer);
 private:
     bool port_connected;
-    QString lastSentLine;
+    QString lastLine;
+    bool lastLineTransmitted;
+    QVector<QString> toSendBuffer;
 };
 
 #endif // SPHEREBOT_H

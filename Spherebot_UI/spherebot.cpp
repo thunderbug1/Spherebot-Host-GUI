@@ -5,7 +5,8 @@ spherebot::spherebot(QObject *parent) :
 {
     port = new QSerialPort();
     port_connected = false;
-    lastSentLine = "";
+//    lineCounter = 0;
+    lastLineTransmitted = true;
 }
 
 bool spherebot::connectWithBot()
@@ -27,6 +28,9 @@ bool spherebot::connectWithBot()
     port->setDataBits(QSerialPort::Data8);
     port->setStopBits(QSerialPort::OneStop);
     port_connected = true;
+//    lineCounter = 0;
+//    sentLineBuffer.clear();
+
     return 1;
 }
 
@@ -34,6 +38,7 @@ bool spherebot::connectWithBot(QString portName)
 {
     port->setPortName(portName);
     return connectWithBot();
+    lastLineTransmitted = true;
 }
 
 bool spherebot::disconnectWithBot()
@@ -42,6 +47,37 @@ bool spherebot::disconnectWithBot()
     port->close();
     port_connected = false;
     return 1;
+}
+
+void spherebot::processAnswer(QString answer)
+{
+//    int linenumber = getOption(line,"N");
+    qDebug()<< "process answer: " << answer << endl;
+    qDebug()<< "buffer: " << toSendBuffer << endl;
+    if(answer.contains("rs"))
+    {
+        resendLine();
+    }
+    else if (answer.contains("ok"))
+    {
+        qDebug()<< "answer.contains(ok): "<< endl;
+        if(toSendBuffer.size() > 0)
+        {
+            lastLineTransmitted = true;
+            send(toSendBuffer.front());
+            toSendBuffer.pop_front();
+        }
+        else
+        {
+            lastLineTransmitted = true;
+        }
+        emit dataSent(lastLine);
+    }
+    else
+    {
+        lastLineTransmitted = true;
+        qDebug() << "answer did not contain rs or ok" << endl;
+    }
 }
 
 QString spherebot::generateChecksumString(QString msg)
@@ -63,32 +99,55 @@ bool spherebot::send(QString cmd)
 {
     if(port->isOpen())
     {
-        port->flush();
-        lastSentLine.clear();
-        lastSentLine.append(cmd);
-        if(cmd.size() != 0)
+        if(lastLineTransmitted)
         {
-            if(cmd[cmd.size()-1] == '\n') cmd.chop(1);
+         //   port->flush();
+
+    //        cmd.remove("N");    //no line numbering is allowed in the line because it is added
+    //        cmd = QString("N") + QString::number(lineCounter).append(" ").append(cmd);
+
+            if(cmd.size() != 0)
+            {
+                if(cmd[cmd.size()-1] == '\n') cmd.chop(1);
+            }
+            cmd.append(" ");
+            cmd.append(generateChecksumString(cmd));
+            qDebug()<<"Sending: " + cmd;
+            cmd.append("\n");
+            //qDebug()<<"sending: " << cmd << endl;
+            port->write((const char*)cmd.toUtf8(),cmd.length());
+
+            lastLine = cmd;
+            lastLineTransmitted = false;
         }
-        cmd.append(" ");
-        cmd.append(generateChecksumString(cmd));
-        qDebug()<<"Sending: " + cmd;
-        cmd.append("\n");
-        port->write((const char*)cmd.toUtf8(),cmd.length());
+        else
+        {
+            toSendBuffer.push_back(cmd);
+        }
     }
     else
     {
         qDebug()<<port->errorString()<<" port is not open";
         return false;
     }
-    cmd.chop(1);
-    emit dataSent(cmd);
     return true;
 }
 
-bool spherebot::repeatLastLine()
+void spherebot::resendLine()
 {
-    return send(lastSentLine);
+//    for(int i = 0;i < sentLineBuffer.size(); i++)
+//    {
+//        if(sentLineBuffer[linenumber].linenumber == linenumber)
+//        {
+//            send(sentLineBuffer[linenumber].content);
+//        }
+//        else
+//        {
+//            qDebug()<<"ERROR: could not find line: " << linenumber << " in sentLineBuffer!! " << endl;
+//        }
+//    }
+    qDebug()<<"Resending: " << lastLine << endl;
+    port->write((const char*)lastLine.toUtf8(),lastLine.length());
 }
 
 bool spherebot::isConnected()

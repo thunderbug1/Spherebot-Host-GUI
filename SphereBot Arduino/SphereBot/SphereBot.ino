@@ -40,10 +40,21 @@
 
 #define VERSIONCODE "Spherebot 2.1"
 
-StepperModel xAxisStepper(XAXIS_DIR_PIN, XAXIS_STEP_PIN, XAXIS_ENABLE_PIN, XAXIS_ENDSTOP_PIN, XAXIS_MS1_PIN, XAXIS_MS2_PIN, XAXIS_MS3_PIN, XAXIS_VMS1, XAXIS_VMS2, XAXIS_VMS3,
-        XAXIS_MIN_STEPCOUNT, XAXIS_MAX_STEPCOUNT, XAXIS_STEPS_PER_FULL_ROTATION, XAXIS_MICROSTEPPING);
-StepperModel rotationStepper(YAXIS_DIR_PIN, YAXIS_STEP_PIN, YAXIS_ENABLE_PIN, YAXIS_ENDSTOP_PIN, YAXIS_MS1_PIN, YAXIS_MS2_PIN, YAXIS_MS3_PIN, YAXIS_VMS1, YAXIS_VMS2, YAXIS_VMS3,
-        YAXIS_MIN_STEPCOUNT, YAXIS_MIN_STEPCOUNT, YAXIS_STEPS_PER_FULL_ROTATION, YAXIS_MICROSTEPPING);
+StepperModel xAxisStepper(
+        XAXIS_DIR_PIN, XAXIS_STEP_PIN, XAXIS_ENABLE_PIN, XAXIS_ENDSTOP_PIN, 
+        XAXIS_MS1_PIN, XAXIS_MS2_PIN, XAXIS_MS3_PIN, 
+        XAXIS_SLP_PIN, XAXIS_RST_PIN,
+        XAXIS_VMS1, XAXIS_VMS2, XAXIS_VMS3,
+        XAXIS_MIN_STEPCOUNT, XAXIS_MAX_STEPCOUNT, 
+        XAXIS_STEPS_PER_FULL_ROTATION, XAXIS_MICROSTEPPING);
+        
+StepperModel rotationStepper(
+        YAXIS_DIR_PIN, YAXIS_STEP_PIN, YAXIS_ENABLE_PIN, YAXIS_ENDSTOP_PIN, 
+        YAXIS_MS1_PIN, YAXIS_MS2_PIN, YAXIS_MS3_PIN, 
+        YAXIS_SLP_PIN, YAXIS_RST_PIN, 
+        YAXIS_VMS1, YAXIS_VMS2, YAXIS_VMS3,
+        YAXIS_MIN_STEPCOUNT, YAXIS_MIN_STEPCOUNT, 
+        YAXIS_STEPS_PER_FULL_ROTATION, YAXIS_MICROSTEPPING);
 
 SoftwareServo servo;
 boolean servoEnabled=true;
@@ -59,6 +70,9 @@ char serial_char; // value for each byte read in from serial comms
 int serial_count = 0; // current length of command
 char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 boolean comment_mode = false;
+
+int next_command_request_counter = 0;	//if this counter reaches the maximum then a "ok" is sent to request the nex command 
+int next_command_request_maximum = 1000;
 // end comm variables
 
 // GCode States
@@ -82,7 +96,7 @@ void setup()
     
     clear_buffer();
 
-    servo.attach(SERVO_PIN);
+    servo.attach(SERVO_PIN_1);
     servo.write(DEFAULT_PEN_UP_POSITION);
     
     if(servoEnabled)
@@ -112,13 +126,19 @@ void loop() // input loop, looks for manual input and then checks to see if and 
   get_command(); // check for Gcodes
   if(servoEnabled)
     SoftwareServo::refresh();
+  Serial.flush();
 }
 
 //--- Interrupt-Routine: Move the steppers
 void doInterrupt()
-{
+{  
   if(isRunning)
   {
+      if(next_command_request_counter++ > next_command_request_maximum)
+      {
+	//Serial.print("forced ok\n");
+	next_command_request_counter = 0;
+      }
       if (intervals_remaining-- == 0)
 	 isRunning = false;
       else
@@ -199,6 +219,7 @@ void get_command() // gets commands from serial connection and then calls up sub
     
     if (serial_char == '\n' || serial_char == '\r') // end of a command character
     { 
+	  next_command_request_counter = 0;
       buffer[serial_count]=0;
       process_commands(buffer, serial_count);
       clear_buffer();
@@ -277,9 +298,11 @@ void process_commands(char command[], int command_length) // deals with standard
 
   if(!(cs == (int)getcs || hasCS == false)) // if checksum does not match
   {
-    Serial.print("rs");
+    Serial.print("rs ");
+	Serial.print((int)getcs);
     //Serial.print((int)nVal);
     Serial.print("\n");
+	//Serial.flush();
   }
   else	//continue if checksum matches or none detected
   {
@@ -459,9 +482,11 @@ void process_commands(char command[], int command_length) // deals with standard
 
   //done processing commands
   //if (Serial.available() <= 0) {
-  Serial.print("ok");
-  //Serial.println(command);
+  Serial.print("ok ");
+  //Serial.print((int)getcs);
+  Serial.println(command);
   Serial.print("\n");
+  //Serial.flush();
   //}
   
   }

@@ -41,6 +41,8 @@ QString removeComments(QString intext)
         }
     /////////////////////////////////////////////////// remove last line if empty
     if(outTmp2.endsWith("\n")) outTmp2.chop(1);
+    /////////////////////////////////////////////////// remove first line if empty
+    if(outTmp2.startsWith("\n")) outTmp2.remove(0,1);
     ///////////////////////////////////////////////////
     return outTmp2;
 }
@@ -78,8 +80,8 @@ void txThread::sendNext()
                 emit layerTransmitted();
             }
         }
-        //qDebug()<<"sending: " << tmp << endl;/////////////////////////////
         bot->send(tmp);
+
         double progress= (double) lineCounter/(double)lineMax;
         emit progressChanged(progress*100);
         lineCounter++;

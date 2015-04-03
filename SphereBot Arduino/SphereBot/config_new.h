@@ -5,45 +5,70 @@
 
 /*
  * PINS
+ 
+ D0 - 0
+ D1 - 1
+ D2 - 2
+ D3 - 3 
+ D4 - 4
+ D05 - 5
+ D06 - 6
+ D07 - 7
+ D08 - 8
+ D09 - 9
+ D10 - 10 
+ D11 - 11
+ D12 - 12
+ D13 - 13
+ A00 - 14
+ A01 - 15
+ A02 - 16
+ A03 - 17
+ A04 - 18
+ A05 - 19
+ A06 - 20  //no digital pin
+ A07 - 21  //no digital pin
+ 
  */
-
-// Y-Axis
-#define YAXIS_DIR_PIN 14
-#define YAXIS_STEP_PIN 15
-#define YAXIS_ENABLE_PIN 21
-#define YAXIS_RST_PIN -1
-#define YAXIS_SLP_PIN -1
-#define YAXIS_MS1_PIN -1
-#define YAXIS_MS2_PIN -1
-#define YAXIS_MS3_PIN -1
+ 
+// Y-Axis -- Pen
+#define YAXIS_DIR_PIN 8
+#define YAXIS_STEP_PIN 9
+#define YAXIS_ENABLE_PIN 2
+#define YAXIS_RST_PIN 6
+#define YAXIS_SLP_PIN 7
+#define YAXIS_MS1_PIN 3
+#define YAXIS_MS2_PIN 4
+#define YAXIS_MS3_PIN 5
 #define YAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
-#define YAXIS_VMS1 HIGH
-#define YAXIS_VMS2 HIGH
-#define YAXIS_VMS3 HIGH
+#define YAXIS_VMS1 LOW
+#define YAXIS_VMS2 LOW
+#define YAXIS_VMS3 LOW
 #define YAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define YAXIS_MAX_STEPCOUNT 0
 #define YAXIS_STEPS_PER_FULL_ROTATION 200.0
 #define YAXIS_MICROSTEPPING 16
 
-//X-Axis
-#define XAXIS_DIR_PIN 10
-#define XAXIS_STEP_PIN 8
-#define XAXIS_ENABLE_PIN 2
-#define XAXIS_RST_PIN -1
-#define XAXIS_SLP_PIN -1
-#define XAXIS_MS1_PIN -1
-#define XAXIS_MS2_PIN -1
-#define XAXIS_MS3_PIN -1
+//X-Axis -- Egg
+#define XAXIS_DIR_PIN 18
+#define XAXIS_STEP_PIN 17
+#define XAXIS_ENABLE_PIN 12
+#define XAXIS_RST_PIN 15
+#define XAXIS_SLP_PIN 16
+#define XAXIS_MS1_PIN 11
+#define XAXIS_MS2_PIN 10
+#define XAXIS_MS3_PIN 14
 #define XAXIS_ENDSTOP_PIN -1     // -1 -> No Endstop
-#define XAXIS_VMS1 HIGH
-#define XAXIS_VMS2 HIGH
-#define XAXIS_VMS3 HIGH
+#define XAXIS_VMS1 LOW
+#define XAXIS_VMS2 LOW
+#define XAXIS_VMS3 LOW
 #define XAXIS_MIN_STEPCOUNT 0    // Travel limits
 #define XAXIS_MAX_STEPCOUNT 0
 #define XAXIS_STEPS_PER_FULL_ROTATION 200.0
-#define XAXIS_MICROSTEPPING 2
+#define XAXIS_MICROSTEPPING 16
 
-#define SERVO_PIN_1 13
+#define SERVO_PIN_1 19
+#define SERVO_PIN_2 13    //unused -- led on arduino board
 
 /*
  * Other Configuration
@@ -59,7 +84,7 @@
  * Microstepping Information
  */     
                                
-//MS1, MS2 and MS3 are optional. You can simply make these settings by hardwiring the pins to high or low
+//MS1, MS2 and MS3 are optional. You can also make these settings by hardwiring the pins to high or low
  
    /* MS1  |  MS2  |  MS3      Microstepping Resolution
     -----------------------

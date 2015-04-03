@@ -14,7 +14,8 @@ void rxThread::receiveData()
     if(bot->port->canReadLine())
     {
         line = bot->port->readLine(1024);
-        line.chop(1);
+        //qDebug()<<"receiving raw: " << line << endl;/////////////////////////////
+        while(line.endsWith('\n')) line.chop(1);
         qDebug()<<"receiving: " << line << endl;/////////////////////////////
         emit lineReceived(line);
     }
