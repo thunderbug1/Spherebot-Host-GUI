@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.0.2
+** Created by: Qt User Interface Compiler version 5.2.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -30,7 +30,6 @@
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
-#include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -79,6 +78,11 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *penslider_2;
     QSpinBox *eggRotationBox;
+    QWidget *widget;
+    QHBoxLayout *horizontalLayout_3;
+    QVBoxLayout *verticalLayout_18;
+    QLineEdit *sendString;
+    QPushButton *sendButton;
     QWidget *layoutWidget1;
     QHBoxLayout *horizontalLayout;
     QPushButton *connectButton;
@@ -90,9 +94,6 @@ public:
     QVBoxLayout *verticalLayout_10;
     QWidget *layoutWidget4;
     QVBoxLayout *verticalLayout_11;
-    QHBoxLayout *horizontalLayout_3;
-    QLineEdit *sendString;
-    QPushButton *sendButton;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout;
     QLabel *label_2;
@@ -116,33 +117,36 @@ public:
     QPushButton *restartButton;
     QProgressBar *fileSendProgressBar;
     QGraphicsView *graphicsView;
-    QWidget *widget;
+    QWidget *layoutWidget6;
     QVBoxLayout *verticalLayout_14;
-    QWidget *widget1;
+    QWidget *layoutWidget7;
     QVBoxLayout *verticalLayout_16;
-    QWidget *widget2;
+    QWidget *layoutWidget8;
     QVBoxLayout *verticalLayout_17;
-    QWidget *widget3;
+    QWidget *layoutWidget9;
     QHBoxLayout *horizontalLayout_15;
-    QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(1492, 484);
+        MainWindow->resize(1500, 550);
+        MainWindow->setMinimumSize(QSize(1500, 550));
+        MainWindow->setMaximumSize(QSize(1500, 550));
+        MainWindow->setStyleSheet(QStringLiteral(""));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        centralWidget->setStyleSheet(QStringLiteral(""));
         controllBox = new QGroupBox(centralWidget);
         controllBox->setObjectName(QStringLiteral("controllBox"));
         controllBox->setEnabled(false);
-        controllBox->setGeometry(QRect(10, 60, 551, 231));
+        controllBox->setGeometry(QRect(20, 60, 551, 231));
         controllBox->setCheckable(false);
         controllBox->setChecked(false);
         layoutWidget = new QWidget(controllBox);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(8, 0, 541, 221));
+        layoutWidget->setGeometry(QRect(8, 0, 541, 191));
         horizontalLayout_6 = new QHBoxLayout(layoutWidget);
         horizontalLayout_6->setSpacing(6);
         horizontalLayout_6->setContentsMargins(11, 11, 11, 11);
@@ -226,7 +230,7 @@ public:
         servoFeedrateSlider->setLayoutDirection(Qt::LeftToRight);
         servoFeedrateSlider->setMinimum(10);
         servoFeedrateSlider->setMaximum(6000);
-        servoFeedrateSlider->setValue(2000);
+        servoFeedrateSlider->setValue(3000);
         servoFeedrateSlider->setOrientation(Qt::Vertical);
         servoFeedrateSlider->setInvertedAppearance(false);
 
@@ -293,6 +297,7 @@ public:
         servospinBox = new QSpinBox(layoutWidget);
         servospinBox->setObjectName(QStringLiteral("servospinBox"));
         servospinBox->setMinimum(23);
+        servospinBox->setMaximum(120);
         servospinBox->setValue(35);
 
         verticalLayout_3->addWidget(servospinBox);
@@ -382,10 +387,33 @@ public:
 
         horizontalLayout_6->addLayout(verticalLayout_6);
 
-        layoutWidget->raise();
+        widget = new QWidget(controllBox);
+        widget->setObjectName(QStringLiteral("widget"));
+        widget->setGeometry(QRect(0, 200, 539, 31));
+        horizontalLayout_3 = new QHBoxLayout(widget);
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+        verticalLayout_18 = new QVBoxLayout();
+        verticalLayout_18->setSpacing(6);
+        verticalLayout_18->setObjectName(QStringLiteral("verticalLayout_18"));
+
+        horizontalLayout_3->addLayout(verticalLayout_18);
+
+        sendString = new QLineEdit(widget);
+        sendString->setObjectName(QStringLiteral("sendString"));
+
+        horizontalLayout_3->addWidget(sendString);
+
+        sendButton = new QPushButton(widget);
+        sendButton->setObjectName(QStringLiteral("sendButton"));
+
+        horizontalLayout_3->addWidget(sendButton);
+
         layoutWidget1 = new QWidget(centralWidget);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(20, 20, 275, 30));
+        layoutWidget1->setGeometry(QRect(20, 20, 271, 30));
         horizontalLayout = new QHBoxLayout(layoutWidget1);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -425,28 +453,12 @@ public:
         verticalLayout_10->setContentsMargins(0, 0, 0, 0);
         layoutWidget4 = new QWidget(centralWidget);
         layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
-        layoutWidget4->setGeometry(QRect(20, 290, 541, 155));
+        layoutWidget4->setGeometry(QRect(20, 290, 541, 211));
         verticalLayout_11 = new QVBoxLayout(layoutWidget4);
         verticalLayout_11->setSpacing(6);
         verticalLayout_11->setContentsMargins(11, 11, 11, 11);
         verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
         verticalLayout_11->setContentsMargins(0, 0, 0, 0);
-        horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        sendString = new QLineEdit(layoutWidget4);
-        sendString->setObjectName(QStringLiteral("sendString"));
-
-        horizontalLayout_3->addWidget(sendString);
-
-        sendButton = new QPushButton(layoutWidget4);
-        sendButton->setObjectName(QStringLiteral("sendButton"));
-
-        horizontalLayout_3->addWidget(sendButton);
-
-
-        verticalLayout_11->addLayout(horizontalLayout_3);
-
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
@@ -460,7 +472,7 @@ public:
 
         txList = new QListWidget(layoutWidget4);
         txList->setObjectName(QStringLiteral("txList"));
-        txList->setAutoScroll(false);
+        txList->setAutoScroll(true);
         txList->setSelectionMode(QAbstractItemView::NoSelection);
 
         verticalLayout->addWidget(txList);
@@ -489,7 +501,7 @@ public:
 
         layoutWidget5 = new QWidget(centralWidget);
         layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
-        layoutWidget5->setGeometry(QRect(570, 10, 461, 431));
+        layoutWidget5->setGeometry(QRect(570, 10, 461, 491));
         verticalLayout_12 = new QVBoxLayout(layoutWidget5);
         verticalLayout_12->setSpacing(6);
         verticalLayout_12->setContentsMargins(11, 11, 11, 11);
@@ -574,40 +586,43 @@ public:
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
         graphicsView->setEnabled(false);
-        graphicsView->setGeometry(QRect(1040, 10, 441, 431));
-        widget = new QWidget(centralWidget);
-        widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_14 = new QVBoxLayout(widget);
+        graphicsView->setGeometry(QRect(1040, 10, 441, 491));
+        layoutWidget6 = new QWidget(centralWidget);
+        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
+        layoutWidget6->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_14 = new QVBoxLayout(layoutWidget6);
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setContentsMargins(11, 11, 11, 11);
         verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
         verticalLayout_14->setContentsMargins(0, 0, 0, 0);
-        widget1 = new QWidget(centralWidget);
-        widget1->setObjectName(QStringLiteral("widget1"));
-        widget1->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_16 = new QVBoxLayout(widget1);
+        layoutWidget7 = new QWidget(centralWidget);
+        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
+        layoutWidget7->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_16 = new QVBoxLayout(layoutWidget7);
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setContentsMargins(11, 11, 11, 11);
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
         verticalLayout_16->setContentsMargins(0, 0, 0, 0);
-        widget2 = new QWidget(centralWidget);
-        widget2->setObjectName(QStringLiteral("widget2"));
-        widget2->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_17 = new QVBoxLayout(widget2);
+        layoutWidget8 = new QWidget(centralWidget);
+        layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
+        layoutWidget8->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_17 = new QVBoxLayout(layoutWidget8);
         verticalLayout_17->setSpacing(6);
         verticalLayout_17->setContentsMargins(11, 11, 11, 11);
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
         verticalLayout_17->setContentsMargins(0, 0, 0, 0);
-        widget3 = new QWidget(centralWidget);
-        widget3->setObjectName(QStringLiteral("widget3"));
-        widget3->setGeometry(QRect(0, 0, 2, 2));
-        horizontalLayout_15 = new QHBoxLayout(widget3);
+        layoutWidget9 = new QWidget(centralWidget);
+        layoutWidget9->setObjectName(QStringLiteral("layoutWidget9"));
+        layoutWidget9->setGeometry(QRect(0, 0, 2, 2));
+        horizontalLayout_15 = new QHBoxLayout(layoutWidget9);
         horizontalLayout_15->setSpacing(6);
         horizontalLayout_15->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
         horizontalLayout_15->setContentsMargins(0, 0, 0, 0);
         MainWindow->setCentralWidget(centralWidget);
+        layoutWidget->raise();
+        layoutWidget->raise();
+        layoutWidget->raise();
         controllBox->raise();
         layoutWidget->raise();
         layoutWidget->raise();
@@ -616,9 +631,6 @@ public:
         layoutWidget->raise();
         graphicsView->raise();
         layoutWidget->raise();
-        mainToolBar = new QToolBar(MainWindow);
-        mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
@@ -648,10 +660,10 @@ public:
         label->setText(QApplication::translate("MainWindow", "Servo", 0));
         penslider->setText(QApplication::translate("MainWindow", "Pen Rotation", 0));
         penslider_2->setText(QApplication::translate("MainWindow", "Egg Rotation", 0));
-        connectButton->setText(QApplication::translate("MainWindow", "Connect", 0));
-        resetButton->setText(QApplication::translate("MainWindow", "R", 0));
         sendButton->setText(QApplication::translate("MainWindow", "Send", 0));
-        label_2->setText(QApplication::translate("MainWindow", "Tranceived Data", 0));
+        connectButton->setText(QApplication::translate("MainWindow", "Connect", 0));
+        resetButton->setText(QApplication::translate("MainWindow", "Reset", 0));
+        label_2->setText(QApplication::translate("MainWindow", "Transceived Data", 0));
         label_3->setText(QApplication::translate("MainWindow", "Received Data", 0));
         fileName->setText(QString());
         undoButton->setText(QApplication::translate("MainWindow", "Undo", 0));

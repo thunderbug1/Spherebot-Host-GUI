@@ -4,9 +4,16 @@ spherebot::spherebot(QObject *parent) :
     QObject(parent)
 {
     port = new QSerialPort();
-    port_connected = false;
+    bot_connected = false;
 //    lineCounter = 0;
     lastLineTransmitted = true;
+    timeout_timer = new QTimer();
+    timeout_timer->setInterval(5000);
+    retry_timer = new QTimer();
+    retry_timer->setInterval(50);
+    connect(timeout_timer,SIGNAL(timeout()),this,SLOT(resendLine()));
+    connect(retry_timer,SIGNAL(timeout()),this,SLOT(trySendBufferLine()));
+    resetState();
 }
 
 bool spherebot::connectWithBot()
@@ -15,6 +22,7 @@ bool spherebot::connectWithBot()
     if(!port->isOpen())
     {
         //QMessageBox::warning(this, "port error", "Impossible to open the port!");
+        qDebug()<< "Impossible to open the port!" << endl;
         return 0;
     }
 
@@ -27,7 +35,6 @@ bool spherebot::connectWithBot()
     port->setParity(QSerialPort::NoParity);
     port->setDataBits(QSerialPort::Data8);
     port->setStopBits(QSerialPort::OneStop);
-    port_connected = true;
 //    lineCounter = 0;
 //    sentLineBuffer.clear();
 
@@ -37,46 +44,62 @@ bool spherebot::connectWithBot()
 bool spherebot::connectWithBot(QString portName)
 {
     port->setPortName(portName);
-    return connectWithBot();
     lastLineTransmitted = true;
+    return connectWithBot();
 }
 
 bool spherebot::disconnectWithBot()
 {
     qDebug("port closed");
-    port->close();
-    port_connected = false;
+    if(port->isOpen())
+        port->close();
+    bot_connected = false;
+    timeout_timer->stop();
     return 1;
 }
 
 void spherebot::processAnswer(QString answer)
 {
 //    int linenumber = getOption(line,"N");
-    qDebug()<< "process answer: " << answer << endl;
-    qDebug()<< "buffer: " << toSendBuffer << endl;
+    //qDebug()<< "process answer: " << answer << endl;
+    //qDebug()<< "buffer: " << toSendBuffer << endl;
     if(answer.contains("rs"))
     {
         resendLine();
     }
     else if (answer.contains("ok"))
     {
-        qDebug()<< "answer.contains(ok): "<< endl;
+        //qDebug()<< "answer.contains(ok): "<< endl;
+        lastLineTransmitted = true;
+        timeout_timer->stop();
+
         if(toSendBuffer.size() > 0)
         {
-            lastLineTransmitted = true;
-            send(toSendBuffer.front());
-            toSendBuffer.pop_front();
+            trySendBufferLine();
+        }
+        else if(sendingFile)
+        {
+            if( toSendBuffer.size() == 0 && lineCounter > lineMax)
+            {
+               emit fileTransmitted();
+            }
+            sendNext();
         }
         else
         {
-            lastLineTransmitted = true;
+            //everything sent
+            retry_timer->stop();
         }
         emit dataSent(lastLine);
     }
+    else if(answer.contains("Spherebot"))
+    {
+        //qDebug() << "received version" << endl;
+        bot_connected = true;
+    }
     else
     {
-        lastLineTransmitted = true;
-        qDebug() << "answer did not contain rs or ok" << endl;
+        //qDebug() << "answer did not contain rs or ok" << endl;
     }
 }
 
@@ -91,7 +114,7 @@ QString spherebot::generateChecksumString(QString msg)
         cs &= 0xff;  // Defensive programming...
     }
     result += QString::number(cs);
-    qDebug()<<"checksum is: "<< cs <<endl;
+    //qDebug()<<"checksum is: "<< cs <<endl;
     return result;
 }
 
@@ -99,30 +122,33 @@ bool spherebot::send(QString cmd)
 {
     if(port->isOpen())
     {
-        if(lastLineTransmitted)
+        while( lastLine.endsWith('\n')) lastLine.chop(1);
+
+        cmd.append(" ");
+        cmd.append(generateChecksumString(cmd));
+        cmd.append("\n");
+
+        if(bot_connected)
         {
-         //   port->flush();
-
-    //        cmd.remove("N");    //no line numbering is allowed in the line because it is added
-    //        cmd = QString("N") + QString::number(lineCounter).append(" ").append(cmd);
-
-            if(cmd.size() != 0)
+            if(lastLineTransmitted)
             {
-                if(cmd[cmd.size()-1] == '\n') cmd.chop(1);
-            }
-            cmd.append(" ");
-            cmd.append(generateChecksumString(cmd));
-            qDebug()<<"Sending: " + cmd;
-            cmd.append("\n");
-            //qDebug()<<"sending: " << cmd << endl;
-            port->write((const char*)cmd.toUtf8(),cmd.length());
+                qDebug()<<"Sending: " + cmd;
+                port->write((const char*)cmd.toUtf8(),cmd.length());
 
-            lastLine = cmd;
-            lastLineTransmitted = false;
+                lastLine = cmd;
+                lastLineTransmitted = false;
+                timeout_timer->start();
+            }
+            else
+            {
+                toSendBuffer.push_back(cmd);
+            }
         }
         else
         {
             toSendBuffer.push_back(cmd);
+            qDebug()<<"Buffer: " << toSendBuffer<< endl;
+            retry_timer->start();
         }
     }
     else
@@ -135,22 +161,110 @@ bool spherebot::send(QString cmd)
 
 void spherebot::resendLine()
 {
-//    for(int i = 0;i < sentLineBuffer.size(); i++)
-//    {
-//        if(sentLineBuffer[linenumber].linenumber == linenumber)
-//        {
-//            send(sentLineBuffer[linenumber].content);
-//        }
-//        else
-//        {
-//            qDebug()<<"ERROR: could not find line: " << linenumber << " in sentLineBuffer!! " << endl;
-//        }
-//    }
-    qDebug()<<"Resending: " << lastLine << endl;
-    port->write((const char*)lastLine.toUtf8(),lastLine.length());
+    if(lastLine == "")
+    {
+        timeout_timer->stop();
+    }
+    else if( bot_connected)
+    {
+        port->write((const char*)lastLine.toUtf8(),lastLine.length());
+        while( lastLine.endsWith('\n')) lastLine.chop(1);
+        qDebug()<<"Resending: " << lastLine << endl;
+    }
+}
+
+void spherebot::trySendBufferLine()
+{
+    qDebug()<<"try sending buffer: " << toSendBuffer.front() << endl;
+    if(lastLineTransmitted && bot_connected)
+    {
+        if(toSendBuffer.size() > 0)
+        {
+            QString cmd = toSendBuffer.front();
+            toSendBuffer.pop_front();
+            port->write((const char*)cmd.toUtf8(),cmd.length());
+
+            lastLine = cmd;
+            lastLineTransmitted = false;
+            timeout_timer->start();
+        }
+        retry_timer->stop();
+    }
 }
 
 bool spherebot::isConnected()
 {
-    return port_connected;
+    return bot_connected;
+}
+
+
+void spherebot::resetState()
+{
+    lineCounter = 0;
+    ignoreFirstM01 = true;
+    sendingFile = false;
+}
+
+QString removeComments(QString intext)
+{
+    ////////////////////////////////////////////////remove comments
+    QString outTmp1,outTmp2;
+    bool state=1;   //1= send, 0 = ignore
+    for(int i=0;i<intext.size();i++)
+    {
+        if(intext.at(i) == '(' ) state=0;
+        if(state == 1) outTmp1.append(intext[i]);
+        if(intext.at(i) == ')' ) state=1;
+    }
+    //////////////////////////////////////////////////remove empty lines
+    for(int i=0;i<outTmp1.size();i++)
+        {
+            if(i != outTmp1.size())
+            {
+                if(!(outTmp1[i] == '\n' && outTmp1[i+1] == '\n'))
+                {
+                    outTmp2.append(outTmp1[i]);
+                }
+            }
+        }
+    /////////////////////////////////////////////////// remove last line if empty
+    if(outTmp2.endsWith("\n")) outTmp2.chop(1);
+    /////////////////////////////////////////////////// remove first line if empty
+    if(outTmp2.startsWith("\n")) outTmp2.remove(0,1);
+    ///////////////////////////////////////////////////
+    return outTmp2;
+}
+
+void spherebot::set(QString intextfile)
+{
+    lineCounter = 0;
+    textfile.clear();
+    textfile.append(removeComments(intextfile));
+    //qDebug()<<"The textfile String is: \n\n" + textfile + "\n\nENDE\n\n";
+    lineMax = textfile.count("\n");
+}
+
+void spherebot::sendNext()
+{
+    QString tmp;
+    if(lineCounter <= lineMax)
+    {
+        tmp = textfile.section("\n",lineCounter,lineCounter);
+        if(tmp.contains("M01"))
+        {
+            if(ignoreFirstM01)
+            {
+                ignoreFirstM01 = false;
+            }
+            else
+            {
+                emit layerTransmitted();
+            }
+        }
+        send(tmp);
+
+        double progress= (double) lineCounter/(double)lineMax;
+        emit progressChanged(progress*100);
+        lineCounter++;
+    }
 }

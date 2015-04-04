@@ -21,12 +21,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     spherebot.cpp \
-    txthread.cpp \
     rxthread.cpp
 
 HEADERS  += mainwindow.h \
     spherebot.h \
-    txthread.h \
     rxthread.h
 
 FORMS    += mainwindow.ui

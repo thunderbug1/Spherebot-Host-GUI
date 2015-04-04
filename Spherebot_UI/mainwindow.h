@@ -9,12 +9,12 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTimer>
-#include "txthread.h"
 #include "rxthread.h"
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QGraphicsSvgItem>
 #include <QMessageBox>
+#include <QStateMachine>
 
 
 #define DEFAULTDIAMETER 20
@@ -31,8 +31,6 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
-    enum SendStates{Idle=0,Sending=1,Stoped=2};
     
 public:
     void send_data();
@@ -43,64 +41,69 @@ public:
     bool LoadSettings();
     void SaveSettings();
     void initUI();
-    void setState(SendStates state);
+    void initSateMachine();
 public slots:
     void processReceivedData(QString line);
     void sendDataUI(QString data);
-    void finishedTransmission();
+//    void finishedTransmission();
     void refreshSendProgress(int value);
     void fitgraphicsView();
-    void finishedLayer();
+//    void finishedLayer();
 
+//    void loadFileDialog();
 private slots:
-    void on_connectButton_clicked();
+    void hey(){qDebug()<<"hey"<<endl;}
+
     void resetPortList();
     void on_sendButton_clicked();
     void on_resetButton_clicked();
     void on_sendString_editingFinished();
     void on_servoSlider_sliderMoved(int position);
     void on_servospinBox_valueChanged(int arg1);
-    void on_penSlider_valueChanged(int value);
-    void on_eggSlider_valueChanged(int value);
     void on_penRotationBox_valueChanged(int arg1);
     void on_eggRotationBox_valueChanged(int arg1);
-    void on_loadFileButton_clicked();
     void on_saveFileButton_clicked();
     void on_fileTextEdit_textChanged();
-    void on_sendFileButton_clicked();
     void on_servoFeedrateSlider_valueChanged(int value);
     void on_setDiameterButton_clicked();
-    void on_undoButton_clicked();
-    void on_redoButton_clicked();
-    void on_fileTextEdit_undoAvailable(bool b);
-    void on_fileTextEdit_redoAvailable(bool b);
-    void on_restartButton_clicked();
 
     void interpretSentString(QString string);
 
     void on_sendString_textChanged(const QString &arg1);
 
-    void on_baudBox_currentIndexChanged(int index);
+    // state functions
+    void entry_connected();
+    void entry_disconnected();
+    void entry_transmitting();
+    void entry_sending();
+    void entry_start_sending();
+    void entry_stopped();
+    void entry_idle();
+    void entry_abort();
+    void entry_restart();
+    void entry_ask_for_restart();
+    void entry_ask_for_next_layer();
+    void entry_load_file_dialog();
+
+    void leave_sending();
+
+    void loadFile(const QString &fileName);
+//    void loadFileAndSubFiles(const QString &fileName);
+    bool saveFile(const QString &fileName);
 
 private:
 
-    void loadFile(const QString &fileName);
-    void loadFileAndSubFiles(const QString &fileName);
-    bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void interpretGcode(QString code);
     void refreshLayerNames(QString file);
     void SetBotToHomePosition();
     QString curFile;
     QDir curDir;
-    SendStates sendState;
 
     Ui::MainWindow *ui;
     QSerialPortInfo PortInfo;
     QList<QSerialPortInfo> portList;
     spherebot *bot;
-    QTimer *rxTimer;
-    txThread *Transceiver;
     rxThread *Receiver;
     QGraphicsScene *scene;
     QList<QString> layerNames;        //layerFile, layerColorString
@@ -114,6 +117,13 @@ private:
 
     QTimer FitInTimer;          //timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
     void extractOptions(QString file);
+
+    QState *connected;
+    QState *disconnected;
+    QState *idle, *sending, *abort, *stopped, *restart, *start_sending;
+    QState *ask_for_restart, *ask_for_next_layer, *load_file_dialog;
+    QState *transmitting; //stopped or sending
+    QStateMachine machine;
 };
 
 #endif // MAINWINDOW_H

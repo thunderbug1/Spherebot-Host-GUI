@@ -38,7 +38,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>60</y>
       <width>551</width>
       <height>231</height>
@@ -59,7 +59,7 @@
        <x>8</x>
        <y>0</y>
        <width>541</width>
-       <height>221</height>
+       <height>191</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -163,19 +163,6 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_13">
         <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>2</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_11">
           <item>
            <spacer name="verticalSpacer_5">
@@ -258,19 +245,6 @@
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>2</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_12">
           <item>
@@ -448,13 +422,38 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>200</y>
+       <width>539</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_18"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sendString"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sendButton">
+        <property name="text">
+         <string>Send</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>371</width>
+      <width>271</width>
       <height>30</height>
      </rect>
     </property>
@@ -466,13 +465,6 @@
        </property>
        <property name="checkable">
         <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="baudBox">
-       <property name="enabled">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -521,20 +513,6 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_11">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLineEdit" name="sendString"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="sendButton">
-         <property name="text">
-          <string>Send</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -581,7 +559,7 @@
       <x>570</x>
       <y>10</y>
       <width>461</width>
-      <height>461</height>
+      <height>491</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -688,7 +666,7 @@
       <x>1040</x>
       <y>10</y>
       <width>441</width>
-      <height>241</height>
+      <height>491</height>
      </rect>
     </property>
    </widget>
@@ -736,19 +714,6 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_15"/>
    </widget>
-   <widget class="QGraphicsView" name="gcodeView">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>1040</x>
-      <y>260</y>
-      <width>441</width>
-      <height>251</height>
-     </rect>
-    </property>
-   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -760,7 +725,6 @@
    <zorder>layoutWidget</zorder>
    <zorder>graphicsView</zorder>
    <zorder>layoutWidget</zorder>
-   <zorder>gcodeView</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
