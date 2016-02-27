@@ -58,22 +58,28 @@ void MainWindow::fitgraphicsView()      ////function to trigger the fitIn functi
 
 void MainWindow::entry_connected()
 {
-    qDebug() << " run connected1"<<endl;
+    //successfully connected
+    qDebug()<< "entry_connected"<< endl;
+    Receiver->run();
+    ui->connectButton->setChecked(true);
+    ui->controllBox->setEnabled(true);
+    ui->portBox->setEnabled(false);
+    ui->resetButton->setEnabled(false);
+    ui->connectButton->setText("Disconnect");
+    if(!ui->fileTextEdit->toPlainText().isEmpty()) ui->sendFileButton->setEnabled(true);
+    statusBar()->showMessage(tr("Successfully connected to bot!"),4000);
+}
+
+void MainWindow::entry_try_connect()
+{
+    qDebug()<< "entry try_connect"<< endl;
     if(bot->connectWithBot(ui->portBox->currentText()))
     {
-        //successfully connected
-        qDebug() << " run connected2"<<endl;
-        Receiver->run();
-        ui->connectButton->setChecked(true);
-        ui->controllBox->setEnabled(true);
-        ui->portBox->setEnabled(false);
-        ui->resetButton->setEnabled(false);
-        ui->connectButton->setText("Disconnect");
-        if(!ui->fileTextEdit->toPlainText().isEmpty()) ui->sendFileButton->setEnabled(true);
-        statusBar()->showMessage(tr("Successfully connected to bot!"),4000);
+        emit successfully_connected();
     }
     else
     {
+        emit not_successfully_connected();
         statusBar()->showMessage(tr("Could not connect to bot!"),4000);
     }
 }
@@ -81,6 +87,7 @@ void MainWindow::entry_connected()
 void MainWindow::entry_disconnected()
 {
     //disconnect
+    qDebug()<< "disconnect"<< endl;
     bot->disconnectWithBot();
     ui->connectButton->setChecked(false);
     ui->connectButton->setText("Connect");
@@ -219,6 +226,7 @@ void MainWindow::entry_load_file_dialog()
 void MainWindow::initSateMachine()
 {
     connected = new QState();
+    try_connect = new QState();
     disconnected = new QState();
 
     transmitting = new QState(connected);   //transmitting means sending or stopped
@@ -236,7 +244,9 @@ void MainWindow::initSateMachine()
     /////////////////////////////////////////////////// Transitions
 
     connected->addTransition(ui->connectButton,     SIGNAL(clicked()),disconnected);
-    disconnected->addTransition(ui->connectButton,  SIGNAL(clicked()),connected);
+    disconnected->addTransition(ui->connectButton,  SIGNAL(clicked()),try_connect);
+    try_connect->addTransition(this,         SIGNAL(successfully_connected()),connected);
+    try_connect->addTransition(this,         SIGNAL(not_successfully_connected()),disconnected);
 
     connected->setInitialState(idle);
 
@@ -269,6 +279,7 @@ void MainWindow::initSateMachine()
     /////////////////////////////////////////////////// Functions executed in states
 
     connect(connected,      SIGNAL(entered()),this,SLOT(entry_connected()));
+    connect(try_connect,    SIGNAL(entered()),this,SLOT(entry_try_connect()));
     connect(disconnected,   SIGNAL(entered()),this,SLOT(entry_disconnected()));
     connect(transmitting,   SIGNAL(entered()),this,SLOT(entry_transmitting()));
     connect(idle,           SIGNAL(entered()),this,SLOT(entry_idle()));
@@ -286,6 +297,7 @@ void MainWindow::initSateMachine()
 
     machine.addState(connected);
     machine.addState(disconnected);
+    machine.addState(try_connect);
 
     machine.setInitialState(disconnected);
     machine.start();
@@ -565,8 +577,6 @@ void MainWindow::resetPortList()
 void MainWindow::on_resetButton_clicked()
 {
     resetPortList();
-    ui->loadFileButton->setEnabled(true);
-    ui->loadFileButton->setText("Load File");
 }
 
 void MainWindow::sendDataUI(QString data)

@@ -73,6 +73,7 @@ private slots:
 
     // state functions
     void entry_connected();
+    void entry_try_connect();
     void entry_disconnected();
     void entry_transmitting();
     void entry_sending();
@@ -90,6 +91,10 @@ private slots:
     void loadFile(const QString &fileName);
 //    void loadFileAndSubFiles(const QString &fileName);
     bool saveFile(const QString &fileName);
+
+signals:
+    void successfully_connected();
+    void not_successfully_connected();
 
 private:
 
@@ -119,6 +124,7 @@ private:
     void extractOptions(QString file);
 
     QState *connected;
+    QState *try_connect;
     QState *disconnected;
     QState *idle, *sending, *abort, *stopped, *restart, *start_sending;
     QState *ask_for_restart, *ask_for_next_layer, *load_file_dialog;
