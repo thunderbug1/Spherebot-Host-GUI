@@ -15,6 +15,7 @@
 #include <QGraphicsSvgItem>
 #include <QMessageBox>
 #include <QStateMachine>
+#include <QSerialPort>
 
 
 #define DEFAULTDIAMETER 20
@@ -93,6 +94,7 @@ private slots:
     bool saveFile(const QString &fileName);
 
 signals:
+    void force_disconnect();
     void successfully_connected();
     void not_successfully_connected();
 
@@ -101,6 +103,10 @@ signals:
 
     void restart_print();
     void abort_restart_print();
+
+public slots:
+    void handle_port_error(QSerialPort::SerialPortError err);
+
 
 private:
 

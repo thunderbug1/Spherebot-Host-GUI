@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(Receiver,   SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
     connect(Receiver,   SIGNAL(lineReceived(QString)),this->bot,  SLOT(processAnswer(QString)));
 
+    connect(bot->port,  SIGNAL(error(QSerialPort::SerialPortError)),this,SLOT(handle_port_error(QSerialPort::SerialPortError)));
+
     initUI();
     initSateMachine();
 
@@ -44,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Spherebot Controll");
 
     qDebug()<<"mainwindow initialised: ";
-    connect(restartLayerMsgBox,SIGNAL(accepted()),this,SLOT(hey()));
 }
 
 void MainWindow::fitgraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
@@ -266,6 +267,7 @@ void MainWindow::initSateMachine()
     /////////////////////////////////////////////////// Transitions
 
     connected->addTransition(ui->connectButton,     SIGNAL(clicked()),disconnected);
+    connected->addTransition(this,SIGNAL(force_disconnect()),disconnected);
     disconnected->addTransition(ui->connectButton,  SIGNAL(clicked()),try_connect);
     try_connect->addTransition(this,         SIGNAL(successfully_connected()),connected);
     try_connect->addTransition(this,         SIGNAL(not_successfully_connected()),disconnected);
@@ -371,6 +373,15 @@ MainWindow::~MainWindow()
     qDebug()<<"delete main window";
     SaveSettings();
     delete ui;
+}
+
+void MainWindow::handle_port_error(QSerialPort::SerialPortError err)
+{
+    if(err != QSerialPort::NoError)
+    {
+        emit force_disconnect();
+        resetPortList();
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 
