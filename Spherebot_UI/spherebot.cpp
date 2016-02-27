@@ -54,7 +54,7 @@ bool spherebot::disconnectWithBot()
     if(port->isOpen())
         port->close();
     bot_connected = false;
-    timeout_timer->stop();
+    this->resetState();
     return 1;
 }
 
@@ -99,7 +99,8 @@ void spherebot::processAnswer(QString answer)
     }
     else
     {
-        //qDebug() << "answer did not contain rs or ok" << endl;
+        qDebug() << "answer did not contain rs or ok or Spherebot" << endl;
+        qDebug() << "answer was:" << answer << endl;
     }
 }
 
@@ -122,19 +123,21 @@ bool spherebot::send(QString cmd)
 {
     if(port->isOpen())
     {
-        while( lastLine.endsWith('\n')) lastLine.chop(1);
+        while( lastLine.endsWith('\n') || lastLine.endsWith('\r')) lastLine.chop(1);
 
         cmd.append(" ");
         cmd.append(generateChecksumString(cmd));
-        cmd.append("\n");
+        cmd.append('\n');
 
         if(bot_connected)
         {
             if(lastLineTransmitted)
             {
                 qDebug()<<"Sending: " + cmd;
-                port->write((const char*)cmd.toUtf8(),cmd.length());
-
+                int er = port->write((const char*)cmd.toUtf8(),cmd.length());
+                if (er == -1)
+                    qDebug() << "an error occured while writing to the port!!" << endl;
+                //qDebug() << "flush result: " << port->flush();
                 lastLine = cmd;
                 lastLineTransmitted = false;
                 timeout_timer->start();
@@ -168,7 +171,7 @@ void spherebot::resendLine()
     else if( bot_connected)
     {
         port->write((const char*)lastLine.toUtf8(),lastLine.length());
-        while( lastLine.endsWith('\n')) lastLine.chop(1);
+        //while( lastLine.endsWith('\n')) lastLine.chop(1);
         qDebug()<<"Resending: " << lastLine << endl;
     }
 }
@@ -203,6 +206,11 @@ void spherebot::resetState()
     lineCounter = 0;
     ignoreFirstM01 = true;
     sendingFile = false;
+    toSendBuffer.clear();
+    lastLine = "";
+    lineCounter = 0;
+    retry_timer->stop();
+    timeout_timer->stop();
 }
 
 QString removeComments(QString intext)

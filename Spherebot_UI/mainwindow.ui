@@ -58,7 +58,7 @@
       <rect>
        <x>8</x>
        <y>0</y>
-       <width>541</width>
+       <width>609</width>
        <height>191</height>
       </rect>
      </property>
@@ -422,13 +422,13 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>0</x>
        <y>200</y>
        <width>539</width>
-       <height>31</height>
+       <height>48</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -453,8 +453,8 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>271</width>
-      <height>30</height>
+      <width>461</width>
+      <height>48</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -474,7 +474,7 @@
      <item>
       <widget class="QPushButton" name="resetButton">
        <property name="text">
-        <string>Reset</string>
+        <string>Reset portlist</string>
        </property>
       </widget>
      </item>
@@ -558,7 +558,7 @@
      <rect>
       <x>570</x>
       <y>10</y>
-      <width>461</width>
+      <width>642</width>
       <height>491</height>
      </rect>
     </property>

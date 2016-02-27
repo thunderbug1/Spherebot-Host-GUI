@@ -52,10 +52,10 @@ public slots:
 
 //    void loadFileDialog();
 private slots:
-    void hey(){qDebug()<<"hey"<<endl;}
+   // void hey(){qDebug()<<"hey"<<endl;}
 
     void resetPortList();
-    void on_sendButton_clicked();
+    void on_sendButton_released();
     void on_resetButton_clicked();
     void on_sendString_editingFinished();
     void on_servoSlider_sliderMoved(int position);
@@ -95,6 +95,12 @@ private slots:
 signals:
     void successfully_connected();
     void not_successfully_connected();
+
+    void print_next_layer();
+    void abort_print();
+
+    void restart_print();
+    void abort_restart_print();
 
 private:
 

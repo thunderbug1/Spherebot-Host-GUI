@@ -66,6 +66,7 @@ void MainWindow::entry_connected()
     ui->portBox->setEnabled(false);
     ui->resetButton->setEnabled(false);
     ui->connectButton->setText("Disconnect");
+    ui->sendButton->setEnabled(false);
     if(!ui->fileTextEdit->toPlainText().isEmpty()) ui->sendFileButton->setEnabled(true);
     statusBar()->showMessage(tr("Successfully connected to bot!"),4000);
 }
@@ -157,11 +158,13 @@ void MainWindow::entry_idle()
     qDebug()<< "entry_idle"<< endl;
     ui->fileSendProgressBar->setValue(0);
     ui->sendFileButton->setText("Send File");
+    ui->saveFileButton->setText("Save File");
     ui->loadFileButton->setText("Load File");
 
     ui->controllBox->setEnabled(true);
     ui->restartButton->setEnabled(false);
     ui->loadFileButton->setEnabled(true);
+    ui->saveFileButton->setEnabled(false);
     ui->fileSendProgressBar->setEnabled(false);
 
     bot->send("M 18");      //disable motors
@@ -183,14 +186,22 @@ void MainWindow::entry_ask_for_restart()
     qDebug()<< "entry_ask_for_restart"<< endl;
     statusBar()->showMessage(tr("File successfully sent"));
     SetBotToHomePosition();
-    if(restartLayerMsgBox->exec() == QMessageBox::Ok)   //workaround cause the signals don´t fire
-        emit restartLayerMsgBox->accept();
+    int result = restartLayerMsgBox->exec();
+    if(result == QMessageBox::Ok)
+    {
+        emit restart_print();
+        qDebug()<< "emit restart_print"<< endl;
+    }
     else
-        emit restartLayerMsgBox->reject();
+    {
+        emit abort_print();
+        qDebug()<< "emit abort_print"<< endl;
+    }
 }
 
 void MainWindow::entry_ask_for_next_layer()
 {
+    qDebug()<<"entry_ask_for_next_layer"<< endl;
     qDebug()<< "entry_ask_for_next_layer"<< endl;
     if(layerNames.size() > 1) layerIndex++;
 
@@ -201,12 +212,23 @@ void MainWindow::entry_ask_for_next_layer()
     {
         nextLayerMsgBox->setText("Please change the tool for layer: " + layerNames[layerIndex]);
         SetBotToHomePosition();
-        nextLayerMsgBox->exec();
+        int result = nextLayerMsgBox->exec();
+        if(result == QMessageBox::Ok)
+        {
+            emit print_next_layer();
+            qDebug()<< "emit print_next_layer"<< endl;
+        }
+        else
+        {
+            emit abort_print();
+            qDebug()<< "emit abort_print"<< endl;
+        }
     }
 }
 
 void MainWindow::entry_load_file_dialog()
 {
+    qDebug()<<"entry_load_file_dialog"<< endl;
     QString fileName;
     if(!curDir.absolutePath().isEmpty())
     {
@@ -264,11 +286,20 @@ void MainWindow::initSateMachine()
     //
     start_sending->addTransition(start_sending,SIGNAL(entered()),sending);
 
-    ask_for_restart->addTransition(restartLayerMsgBox,SIGNAL(accepted()),restart);
-    ask_for_restart->addTransition(restartLayerMsgBox,SIGNAL(rejected()),idle);
-    connect(ask_for_restart,SIGNAL(exited()),this,SLOT(hey()));
+    idle->addTransition(restartLayerMsgBox,SIGNAL(accepted()),restart);
+    idle->addTransition(restartLayerMsgBox,SIGNAL(rejected()),idle);
 
-    ask_for_next_layer->addTransition(nextLayerMsgBox,SIGNAL(accepted()),sending);
+    idle->addTransition(this,SIGNAL(restart_print()),restart);
+    ask_for_restart->addTransition(this,SIGNAL(restart_print()),restart);
+    ask_for_restart->addTransition(this,SIGNAL(abort_restart_print()),abort);
+    idle->addTransition(this,SIGNAL(abort_restart_print()),abort);
+
+    idle->addTransition(this,SIGNAL(print_next_layer()),sending);
+    ask_for_next_layer->addTransition(this,SIGNAL(print_next_layer()),sending);
+    idle->addTransition(this,SIGNAL(abort_print()),abort);
+    ask_for_next_layer->addTransition(this,SIGNAL(abort_print()),abort);
+    //idle->addTransition(nextLayerMsgBox,SIGNAL(accepted()),sending);
+    //idle->addTransition(nextLayerMsgBox,SIGNAL(rejected()),abort);
 
     load_file_dialog->addTransition(load_file_dialog,SIGNAL(entered()),idle);
 
@@ -308,14 +339,17 @@ void MainWindow::initUI()
     nextLayerMsgBox = new QMessageBox(QMessageBox::Information,
                                       "Next Layer",
                                       "The Layer has been finished!\nplease insert the tool for the layer: " + QString::number(layerIndex),
-                                      QMessageBox::Ok|QMessageBox::No);
-    nextLayerMsgBox->setButtonText(QMessageBox::Ok,"OK");
-    nextLayerMsgBox->setButtonText(QMessageBox::No,"Abort");
+                                      QMessageBox::Ok|QMessageBox::Abort);
+
+    //nextLayerMsgBox->addButton("OK",QMessageBox::AcceptRole);
+    //nextLayerMsgBox->addButton("Abort",QMessageBox::RejectRole);
 
     restartLayerMsgBox = new QMessageBox(QMessageBox::Information,
                                          "Restart?",
                                          "Do you want to restart the print?",
-                                         QMessageBox::Ok|QMessageBox::No);
+                                         QMessageBox::Ok|QMessageBox::Abort);
+    //restartLayerMsgBox->addButton("OK",QMessageBox::RejectRole);   //for some reason rejectrole and acceptrole need to be switched
+    //restartLayerMsgBox->addButton("Abort",QMessageBox::AcceptRole);
 
     connect(ui->undoButton,SIGNAL(clicked()),ui->fileTextEdit,SLOT(undo()));
     connect(ui->redoButton,SIGNAL(clicked()),ui->fileTextEdit,SLOT(redo()));
@@ -599,7 +633,7 @@ void MainWindow::on_sendString_editingFinished()
     }
 }
 
-void MainWindow::on_sendButton_clicked()
+void MainWindow::on_sendButton_released()
 {
     on_sendString_editingFinished();
     ui->sendString->setText("");
