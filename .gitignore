@@ -1,0 +1,6 @@
+# ignore Code::Blocks projectfile
+SphereBot.cbp
+
+# ignore object files
+*.o
+

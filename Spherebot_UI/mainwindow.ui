@@ -519,7 +519,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Transceived Data</string>
+            <string>Sent Data</string>
            </property>
           </widget>
          </item>
