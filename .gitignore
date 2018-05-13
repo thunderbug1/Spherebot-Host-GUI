@@ -4,3 +4,15 @@ SphereBot.cbp
 # ignore object files
 *.o
 
+# ignore OS X finder data
+.DS_Store
+
+# ignore OS X app
+*.app
+
+# ignore Qt MOC
+moc_*.*
+*.stash
+Makefile
+
+
