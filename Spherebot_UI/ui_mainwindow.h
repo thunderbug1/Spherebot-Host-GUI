@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.2.1
+** Created by: Qt User Interface Compiler version 5.10.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -16,6 +16,7 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGraphicsView>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -78,22 +79,22 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *penslider_2;
     QSpinBox *eggRotationBox;
-    QWidget *widget;
+    QWidget *layoutWidget1;
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_18;
     QLineEdit *sendString;
     QPushButton *sendButton;
-    QWidget *layoutWidget1;
-    QHBoxLayout *horizontalLayout;
+    QWidget *layoutWidget2;
+    QGridLayout *gridLayout;
     QPushButton *connectButton;
     QComboBox *portBox;
     QPushButton *resetButton;
-    QWidget *layoutWidget2;
-    QVBoxLayout *verticalLayout_9;
     QWidget *layoutWidget3;
-    QVBoxLayout *verticalLayout_10;
+    QVBoxLayout *verticalLayout_9;
     QWidget *layoutWidget4;
-    QVBoxLayout *verticalLayout_11;
+    QVBoxLayout *verticalLayout_10;
+    QWidget *layoutWidget5;
+    QGridLayout *gridLayout_3;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout;
     QLabel *label_2;
@@ -101,8 +102,8 @@ public:
     QVBoxLayout *verticalLayout_2;
     QLabel *label_3;
     QListWidget *rxList;
-    QWidget *layoutWidget5;
-    QVBoxLayout *verticalLayout_12;
+    QWidget *layoutWidget6;
+    QGridLayout *gridLayout_2;
     QVBoxLayout *verticalLayout_8;
     QHBoxLayout *horizontalLayout_8;
     QLabel *fileName;
@@ -117,13 +118,13 @@ public:
     QPushButton *restartButton;
     QProgressBar *fileSendProgressBar;
     QGraphicsView *graphicsView;
-    QWidget *layoutWidget6;
-    QVBoxLayout *verticalLayout_14;
     QWidget *layoutWidget7;
-    QVBoxLayout *verticalLayout_16;
+    QVBoxLayout *verticalLayout_14;
     QWidget *layoutWidget8;
-    QVBoxLayout *verticalLayout_17;
+    QVBoxLayout *verticalLayout_16;
     QWidget *layoutWidget9;
+    QVBoxLayout *verticalLayout_17;
+    QWidget *layoutWidget10;
     QHBoxLayout *horizontalLayout_15;
     QStatusBar *statusBar;
 
@@ -141,12 +142,12 @@ public:
         controllBox = new QGroupBox(centralWidget);
         controllBox->setObjectName(QStringLiteral("controllBox"));
         controllBox->setEnabled(false);
-        controllBox->setGeometry(QRect(20, 60, 551, 231));
+        controllBox->setGeometry(QRect(20, 60, 531, 241));
         controllBox->setCheckable(false);
         controllBox->setChecked(false);
         layoutWidget = new QWidget(controllBox);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(8, 0, 541, 191));
+        layoutWidget->setGeometry(QRect(8, 0, 499, 186));
         horizontalLayout_6 = new QHBoxLayout(layoutWidget);
         horizontalLayout_6->setSpacing(6);
         horizontalLayout_6->setContentsMargins(11, 11, 11, 11);
@@ -387,10 +388,10 @@ public:
 
         horizontalLayout_6->addLayout(verticalLayout_6);
 
-        widget = new QWidget(controllBox);
-        widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(0, 200, 539, 31));
-        horizontalLayout_3 = new QHBoxLayout(widget);
+        layoutWidget1 = new QWidget(controllBox);
+        layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
+        layoutWidget1->setGeometry(QRect(10, 200, 501, 33));
+        horizontalLayout_3 = new QHBoxLayout(layoutWidget1);
         horizontalLayout_3->setSpacing(6);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
@@ -401,76 +402,76 @@ public:
 
         horizontalLayout_3->addLayout(verticalLayout_18);
 
-        sendString = new QLineEdit(widget);
+        sendString = new QLineEdit(layoutWidget1);
         sendString->setObjectName(QStringLiteral("sendString"));
 
         horizontalLayout_3->addWidget(sendString);
 
-        sendButton = new QPushButton(widget);
+        sendButton = new QPushButton(layoutWidget1);
         sendButton->setObjectName(QStringLiteral("sendButton"));
 
         horizontalLayout_3->addWidget(sendButton);
 
-        layoutWidget1 = new QWidget(centralWidget);
-        layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(20, 20, 271, 30));
-        horizontalLayout = new QHBoxLayout(layoutWidget1);
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        connectButton = new QPushButton(layoutWidget1);
+        layoutWidget2 = new QWidget(centralWidget);
+        layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
+        layoutWidget2->setGeometry(QRect(20, 20, 531, 32));
+        gridLayout = new QGridLayout(layoutWidget2);
+        gridLayout->setSpacing(6);
+        gridLayout->setContentsMargins(11, 11, 11, 11);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        gridLayout->setContentsMargins(0, 0, 0, 0);
+        connectButton = new QPushButton(layoutWidget2);
         connectButton->setObjectName(QStringLiteral("connectButton"));
         connectButton->setCheckable(false);
 
-        horizontalLayout->addWidget(connectButton);
+        gridLayout->addWidget(connectButton, 0, 0, 1, 1);
 
-        portBox = new QComboBox(layoutWidget1);
+        portBox = new QComboBox(layoutWidget2);
         portBox->setObjectName(QStringLiteral("portBox"));
 
-        horizontalLayout->addWidget(portBox);
+        gridLayout->addWidget(portBox, 0, 1, 1, 1);
 
-        resetButton = new QPushButton(layoutWidget1);
+        resetButton = new QPushButton(layoutWidget2);
         resetButton->setObjectName(QStringLiteral("resetButton"));
 
-        horizontalLayout->addWidget(resetButton);
+        gridLayout->addWidget(resetButton, 0, 2, 1, 1);
 
-        layoutWidget2 = new QWidget(centralWidget);
-        layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_9 = new QVBoxLayout(layoutWidget2);
+        layoutWidget3 = new QWidget(centralWidget);
+        layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
+        layoutWidget3->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_9 = new QVBoxLayout(layoutWidget3);
         verticalLayout_9->setSpacing(6);
         verticalLayout_9->setContentsMargins(11, 11, 11, 11);
         verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
         verticalLayout_9->setContentsMargins(0, 0, 0, 0);
-        layoutWidget3 = new QWidget(centralWidget);
-        layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
-        layoutWidget3->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_10 = new QVBoxLayout(layoutWidget3);
+        layoutWidget4 = new QWidget(centralWidget);
+        layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
+        layoutWidget4->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_10 = new QVBoxLayout(layoutWidget4);
         verticalLayout_10->setSpacing(6);
         verticalLayout_10->setContentsMargins(11, 11, 11, 11);
         verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
         verticalLayout_10->setContentsMargins(0, 0, 0, 0);
-        layoutWidget4 = new QWidget(centralWidget);
-        layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
-        layoutWidget4->setGeometry(QRect(20, 290, 541, 211));
-        verticalLayout_11 = new QVBoxLayout(layoutWidget4);
-        verticalLayout_11->setSpacing(6);
-        verticalLayout_11->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
-        verticalLayout_11->setContentsMargins(0, 0, 0, 0);
+        layoutWidget5 = new QWidget(centralWidget);
+        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
+        layoutWidget5->setGeometry(QRect(20, 310, 530, 201));
+        gridLayout_3 = new QGridLayout(layoutWidget5);
+        gridLayout_3->setSpacing(6);
+        gridLayout_3->setContentsMargins(11, 11, 11, 11);
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        gridLayout_3->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         verticalLayout = new QVBoxLayout();
         verticalLayout->setSpacing(6);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        label_2 = new QLabel(layoutWidget4);
+        label_2 = new QLabel(layoutWidget5);
         label_2->setObjectName(QStringLiteral("label_2"));
 
         verticalLayout->addWidget(label_2);
 
-        txList = new QListWidget(layoutWidget4);
+        txList = new QListWidget(layoutWidget5);
         txList->setObjectName(QStringLiteral("txList"));
         txList->setAutoScroll(true);
         txList->setSelectionMode(QAbstractItemView::NoSelection);
@@ -483,12 +484,12 @@ public:
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
-        label_3 = new QLabel(layoutWidget4);
+        label_3 = new QLabel(layoutWidget5);
         label_3->setObjectName(QStringLiteral("label_3"));
 
         verticalLayout_2->addWidget(label_3);
 
-        rxList = new QListWidget(layoutWidget4);
+        rxList = new QListWidget(layoutWidget5);
         rxList->setObjectName(QStringLiteral("rxList"));
 
         verticalLayout_2->addWidget(rxList);
@@ -497,16 +498,16 @@ public:
         horizontalLayout_2->addLayout(verticalLayout_2);
 
 
-        verticalLayout_11->addLayout(horizontalLayout_2);
+        gridLayout_3->addLayout(horizontalLayout_2, 0, 0, 1, 1);
 
-        layoutWidget5 = new QWidget(centralWidget);
-        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
-        layoutWidget5->setGeometry(QRect(570, 10, 461, 491));
-        verticalLayout_12 = new QVBoxLayout(layoutWidget5);
-        verticalLayout_12->setSpacing(6);
-        verticalLayout_12->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
-        verticalLayout_12->setContentsMargins(0, 0, 0, 0);
+        layoutWidget6 = new QWidget(centralWidget);
+        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
+        layoutWidget6->setGeometry(QRect(590, 20, 411, 491));
+        gridLayout_2 = new QGridLayout(layoutWidget6);
+        gridLayout_2->setSpacing(6);
+        gridLayout_2->setContentsMargins(11, 11, 11, 11);
+        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+        gridLayout_2->setContentsMargins(0, 0, 0, 0);
         verticalLayout_8 = new QVBoxLayout();
         verticalLayout_8->setSpacing(6);
         verticalLayout_8->setObjectName(QStringLiteral("verticalLayout_8"));
@@ -516,7 +517,7 @@ public:
 
         verticalLayout_8->addLayout(horizontalLayout_8);
 
-        fileName = new QLabel(layoutWidget5);
+        fileName = new QLabel(layoutWidget6);
         fileName->setObjectName(QStringLiteral("fileName"));
 
         verticalLayout_8->addWidget(fileName);
@@ -524,13 +525,13 @@ public:
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setSpacing(6);
         horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
-        undoButton = new QPushButton(layoutWidget5);
+        undoButton = new QPushButton(layoutWidget6);
         undoButton->setObjectName(QStringLiteral("undoButton"));
         undoButton->setEnabled(false);
 
         horizontalLayout_10->addWidget(undoButton);
 
-        redoButton = new QPushButton(layoutWidget5);
+        redoButton = new QPushButton(layoutWidget6);
         redoButton->setObjectName(QStringLiteral("redoButton"));
         redoButton->setEnabled(false);
 
@@ -539,7 +540,7 @@ public:
 
         verticalLayout_8->addLayout(horizontalLayout_10);
 
-        fileTextEdit = new QTextEdit(layoutWidget5);
+        fileTextEdit = new QTextEdit(layoutWidget6);
         fileTextEdit->setObjectName(QStringLiteral("fileTextEdit"));
 
         verticalLayout_8->addWidget(fileTextEdit);
@@ -547,24 +548,24 @@ public:
         horizontalLayout_7 = new QHBoxLayout();
         horizontalLayout_7->setSpacing(6);
         horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
-        loadFileButton = new QPushButton(layoutWidget5);
+        loadFileButton = new QPushButton(layoutWidget6);
         loadFileButton->setObjectName(QStringLiteral("loadFileButton"));
 
         horizontalLayout_7->addWidget(loadFileButton);
 
-        saveFileButton = new QPushButton(layoutWidget5);
+        saveFileButton = new QPushButton(layoutWidget6);
         saveFileButton->setObjectName(QStringLiteral("saveFileButton"));
         saveFileButton->setEnabled(false);
 
         horizontalLayout_7->addWidget(saveFileButton);
 
-        sendFileButton = new QPushButton(layoutWidget5);
+        sendFileButton = new QPushButton(layoutWidget6);
         sendFileButton->setObjectName(QStringLiteral("sendFileButton"));
         sendFileButton->setEnabled(false);
 
         horizontalLayout_7->addWidget(sendFileButton);
 
-        restartButton = new QPushButton(layoutWidget5);
+        restartButton = new QPushButton(layoutWidget6);
         restartButton->setObjectName(QStringLiteral("restartButton"));
         restartButton->setEnabled(false);
 
@@ -574,47 +575,47 @@ public:
         verticalLayout_8->addLayout(horizontalLayout_7);
 
 
-        verticalLayout_12->addLayout(verticalLayout_8);
+        gridLayout_2->addLayout(verticalLayout_8, 0, 0, 1, 1);
 
-        fileSendProgressBar = new QProgressBar(layoutWidget5);
+        fileSendProgressBar = new QProgressBar(layoutWidget6);
         fileSendProgressBar->setObjectName(QStringLiteral("fileSendProgressBar"));
         fileSendProgressBar->setEnabled(false);
         fileSendProgressBar->setValue(0);
 
-        verticalLayout_12->addWidget(fileSendProgressBar);
+        gridLayout_2->addWidget(fileSendProgressBar, 1, 0, 1, 1);
 
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
         graphicsView->setEnabled(false);
-        graphicsView->setGeometry(QRect(1040, 10, 441, 491));
-        layoutWidget6 = new QWidget(centralWidget);
-        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
-        layoutWidget6->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_14 = new QVBoxLayout(layoutWidget6);
+        graphicsView->setGeometry(QRect(1020, 20, 461, 491));
+        layoutWidget7 = new QWidget(centralWidget);
+        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
+        layoutWidget7->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_14 = new QVBoxLayout(layoutWidget7);
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setContentsMargins(11, 11, 11, 11);
         verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
         verticalLayout_14->setContentsMargins(0, 0, 0, 0);
-        layoutWidget7 = new QWidget(centralWidget);
-        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
-        layoutWidget7->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_16 = new QVBoxLayout(layoutWidget7);
+        layoutWidget8 = new QWidget(centralWidget);
+        layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
+        layoutWidget8->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_16 = new QVBoxLayout(layoutWidget8);
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setContentsMargins(11, 11, 11, 11);
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
         verticalLayout_16->setContentsMargins(0, 0, 0, 0);
-        layoutWidget8 = new QWidget(centralWidget);
-        layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
-        layoutWidget8->setGeometry(QRect(0, 0, 2, 2));
-        verticalLayout_17 = new QVBoxLayout(layoutWidget8);
+        layoutWidget9 = new QWidget(centralWidget);
+        layoutWidget9->setObjectName(QStringLiteral("layoutWidget9"));
+        layoutWidget9->setGeometry(QRect(0, 0, 2, 2));
+        verticalLayout_17 = new QVBoxLayout(layoutWidget9);
         verticalLayout_17->setSpacing(6);
         verticalLayout_17->setContentsMargins(11, 11, 11, 11);
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
         verticalLayout_17->setContentsMargins(0, 0, 0, 0);
-        layoutWidget9 = new QWidget(centralWidget);
-        layoutWidget9->setObjectName(QStringLiteral("layoutWidget9"));
-        layoutWidget9->setGeometry(QRect(0, 0, 2, 2));
-        horizontalLayout_15 = new QHBoxLayout(layoutWidget9);
+        layoutWidget10 = new QWidget(centralWidget);
+        layoutWidget10->setObjectName(QStringLiteral("layoutWidget10"));
+        layoutWidget10->setGeometry(QRect(0, 0, 2, 2));
+        horizontalLayout_15 = new QHBoxLayout(layoutWidget10);
         horizontalLayout_15->setSpacing(6);
         horizontalLayout_15->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
@@ -652,26 +653,26 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
         controllBox->setTitle(QString());
-        setDiameterButton->setText(QApplication::translate("MainWindow", "set Diameter", 0));
-        label_4->setText(QApplication::translate("MainWindow", "Obj. Diameter", 0));
-        label_5->setText(QApplication::translate("MainWindow", "Feedrate", 0));
-        label->setText(QApplication::translate("MainWindow", "Servo", 0));
-        penslider->setText(QApplication::translate("MainWindow", "Pen Rotation", 0));
-        penslider_2->setText(QApplication::translate("MainWindow", "Egg Rotation", 0));
-        sendButton->setText(QApplication::translate("MainWindow", "Send", 0));
-        connectButton->setText(QApplication::translate("MainWindow", "Connect", 0));
-        resetButton->setText(QApplication::translate("MainWindow", "Reset", 0));
-        label_2->setText(QApplication::translate("MainWindow", "Transceived Data", 0));
-        label_3->setText(QApplication::translate("MainWindow", "Received Data", 0));
+        setDiameterButton->setText(QApplication::translate("MainWindow", "set Diameter", nullptr));
+        label_4->setText(QApplication::translate("MainWindow", "Obj. Diameter", nullptr));
+        label_5->setText(QApplication::translate("MainWindow", "Feedrate", nullptr));
+        label->setText(QApplication::translate("MainWindow", "Servo", nullptr));
+        penslider->setText(QApplication::translate("MainWindow", "Pen Rotation", nullptr));
+        penslider_2->setText(QApplication::translate("MainWindow", "Egg Rotation", nullptr));
+        sendButton->setText(QApplication::translate("MainWindow", "Send", nullptr));
+        connectButton->setText(QApplication::translate("MainWindow", "Connect", nullptr));
+        resetButton->setText(QApplication::translate("MainWindow", "Reset portlist", nullptr));
+        label_2->setText(QApplication::translate("MainWindow", "Sent Data", nullptr));
+        label_3->setText(QApplication::translate("MainWindow", "Received Data", nullptr));
         fileName->setText(QString());
-        undoButton->setText(QApplication::translate("MainWindow", "Undo", 0));
-        redoButton->setText(QApplication::translate("MainWindow", "Redo", 0));
-        loadFileButton->setText(QApplication::translate("MainWindow", "Load File", 0));
-        saveFileButton->setText(QApplication::translate("MainWindow", "Save File", 0));
-        sendFileButton->setText(QApplication::translate("MainWindow", "Send File", 0));
-        restartButton->setText(QApplication::translate("MainWindow", "Restart", 0));
+        undoButton->setText(QApplication::translate("MainWindow", "Undo", nullptr));
+        redoButton->setText(QApplication::translate("MainWindow", "Redo", nullptr));
+        loadFileButton->setText(QApplication::translate("MainWindow", "Load File", nullptr));
+        saveFileButton->setText(QApplication::translate("MainWindow", "Save File", nullptr));
+        sendFileButton->setText(QApplication::translate("MainWindow", "Send File", nullptr));
+        restartButton->setText(QApplication::translate("MainWindow", "Restart", nullptr));
     } // retranslateUi
 
 };
