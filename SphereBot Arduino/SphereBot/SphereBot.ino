@@ -494,21 +494,27 @@ void process_commands(char command[], int command_length) // deals with standard
 
 void moveServo(double value)
 {
+  const int incrementDelay = SERVO_DELAY;
+  const int currentAngle = servo.read();
+
   servoEnabled = true;
-  if (value < 0.)
-    value = 0.;
-  else if (value > 180.)
+  if (value < 0.) value = 0.;
+  if (value > 180.) value = 180.;
+
+  if (value > currentAngle) // down
   {
-    value = DEFAULT_PEN_UP_POSITION;
-    servo.write((int)value);
-    for(int i=0; i<100; i++)
+    for (int angle=currentAngle; angle<value; angle++)  // single "degree" increments
     {
-        SoftwareServo::refresh();
-        delay(2);
+     servo.write(angle);
+     delay (incrementDelay);
+     SoftwareServo::refresh();
     }
-    servoEnabled = false;
   }
-  servo.write((int)value);
+  else if (value < currentAngle) // up, no delay
+  {
+   servo.write((int)value);
+  }
+  // nothing to be done if value == currentAngle
 }
 
 /* This code was ported from the Makerbot/ReplicatorG java sources */

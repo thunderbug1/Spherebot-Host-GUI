@@ -44,6 +44,7 @@
 #define XAXIS_MICROSTEPPING 16
 
 #define SERVO_PIN_1 10
+#define SERVO_DELAY 75 // (ms) delay between position changes
 
 // Optional output
 #define ALT_PIN 2
