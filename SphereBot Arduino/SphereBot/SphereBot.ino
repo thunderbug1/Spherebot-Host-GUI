@@ -1,7 +1,3 @@
-
-
-
-
 /*
  * Original Code: Copyright 2011 by Eberhard Rensch <http://pleasantsoftware.com/developer/3d>
  *
@@ -35,26 +31,24 @@
 #include "StepperModel.h"
 #include "config.h"
 
-
 #define TIMER_DELAY 1024
-
 #define VERSIONCODE "Spherebot 2.1"
 
 StepperModel xAxisStepper(
-        XAXIS_DIR_PIN, XAXIS_STEP_PIN, XAXIS_ENABLE_PIN, XAXIS_ENDSTOP_PIN, 
-        XAXIS_MS1_PIN, XAXIS_MS2_PIN, XAXIS_MS3_PIN, 
-        XAXIS_SLP_PIN, XAXIS_RST_PIN,
-        XAXIS_VMS1, XAXIS_VMS2, XAXIS_VMS3,
-        XAXIS_MIN_STEPCOUNT, XAXIS_MAX_STEPCOUNT, 
-        XAXIS_STEPS_PER_FULL_ROTATION, XAXIS_MICROSTEPPING);
+      XAXIS_DIR_PIN, XAXIS_STEP_PIN, XAXIS_ENABLE_PIN, XAXIS_ENDSTOP_PIN, 
+      XAXIS_MS1_PIN, XAXIS_MS2_PIN, XAXIS_MS3_PIN, 
+      XAXIS_SLP_PIN, XAXIS_RST_PIN,
+      XAXIS_VMS1, XAXIS_VMS2, XAXIS_VMS3,
+      XAXIS_MIN_STEPCOUNT, XAXIS_MAX_STEPCOUNT, 
+      XAXIS_STEPS_PER_FULL_ROTATION, XAXIS_MICROSTEPPING);
         
 StepperModel rotationStepper(
-        YAXIS_DIR_PIN, YAXIS_STEP_PIN, YAXIS_ENABLE_PIN, YAXIS_ENDSTOP_PIN, 
-        YAXIS_MS1_PIN, YAXIS_MS2_PIN, YAXIS_MS3_PIN, 
-        YAXIS_SLP_PIN, YAXIS_RST_PIN, 
-        YAXIS_VMS1, YAXIS_VMS2, YAXIS_VMS3,
-        YAXIS_MIN_STEPCOUNT, YAXIS_MIN_STEPCOUNT, 
-        YAXIS_STEPS_PER_FULL_ROTATION, YAXIS_MICROSTEPPING);
+      YAXIS_DIR_PIN, YAXIS_STEP_PIN, YAXIS_ENABLE_PIN, YAXIS_ENDSTOP_PIN, 
+      YAXIS_MS1_PIN, YAXIS_MS2_PIN, YAXIS_MS3_PIN, 
+      YAXIS_SLP_PIN, YAXIS_RST_PIN, 
+      YAXIS_VMS1, YAXIS_VMS2, YAXIS_VMS3,
+      YAXIS_MIN_STEPCOUNT, YAXIS_MIN_STEPCOUNT, 
+      YAXIS_STEPS_PER_FULL_ROTATION, YAXIS_MICROSTEPPING);
 
 SoftwareServo servo;
 boolean servoEnabled=true;
@@ -71,7 +65,7 @@ int serial_count = 0; // current length of command
 char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 boolean comment_mode = false;
 
-int next_command_request_counter = 0;	//if this counter reaches the maximum then a "ok" is sent to request the nex command 
+int next_command_request_counter = 0;   //if this counter reaches the maximum then a "ok" is sent to request the nex command 
 int next_command_request_maximum = 1000;
 // end comm variables
 
@@ -86,79 +80,91 @@ double yscaling = Y_SCALING_FACTOR;
 
 const double maxFeedrate = 2000.;
 
-// ------
-
 void setup()
 {
-    Serial.begin(BAUDRATE);
-    Serial.print(VERSIONCODE);
-    Serial.print("\n");
-    
-    clear_buffer();
+  // disable the Ethernet chip/SD card
+  pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
 
-    servo.attach(SERVO_PIN_1);
-    servo.write(DEFAULT_PEN_UP_POSITION);
-    
-    if(servoEnabled)
+  // flash ALT LED
+  pinMode(ALT_PIN, OUTPUT);
+  digitalWrite(ALT_PIN, HIGH);
+  delay(150);
+  digitalWrite(ALT_PIN, LOW);
+  delay(150);
+  digitalWrite(ALT_PIN, HIGH);
+  delay(150);
+  digitalWrite(ALT_PIN, LOW);
+
+  Serial.begin(BAUDRATE);
+  Serial.print(VERSIONCODE);
+  Serial.print("\n");
+
+  clear_buffer();
+
+  servo.attach(SERVO_PIN_1);
+  servo.write(DEFAULT_PEN_UP_POSITION);
+
+  if (servoEnabled)
+  {
+    for(int i=0; i<100; i++)
     {
-      for(int i=0;i<100;i++)
-      {
-          SoftwareServo::refresh();
-          delay(4);
-      }
+      SoftwareServo::refresh();
+      delay(4);
     }
-    
-    //--- Activate the PWM timer
-    Timer1.initialize(TIMER_DELAY); // Timer for updating pwm pins
-    Timer1.attachInterrupt(doInterrupt);
-  
+  }
+
+  // activate the PWM timer
+  Timer1.initialize(TIMER_DELAY); // Timer for updating pwm pins
+  Timer1.attachInterrupt(doInterrupt);
+
 #ifdef AUTO_HOMING
-    xAxisStepper.autoHoming();
-    xAxisStepper.setTargetPosition(0.);
-    commitSteppers(maxFeedrate);
-    delay(2000);
-    xAxisStepper.enableStepper(false);
+  xAxisStepper.autoHoming();
+  xAxisStepper.setTargetPosition(0.);
+  commitSteppers(maxFeedrate);
+  delay(2000);
+  xAxisStepper.enableStepper(false);
 #endif
 }
 
 void loop() // input loop, looks for manual input and then checks to see if and serial commands are coming in
 {
   get_command(); // check for Gcodes
-  if(servoEnabled)
+  if (servoEnabled)
     SoftwareServo::refresh();
   Serial.flush();
 }
 
-//--- Interrupt-Routine: Move the steppers
+// Interrupt-Routine: Move the steppers
 void doInterrupt()
 {  
-  if(isRunning)
+  if (isRunning)
   {
-      if(next_command_request_counter++ > next_command_request_maximum)
-      {
-	//Serial.print("forced ok\n");
-	next_command_request_counter = 0;
-      }
-      if (intervals_remaining-- == 0)
-	 isRunning = false;
-      else
-      {
-          rotationStepper.doStep(intervals);
-          xAxisStepper.doStep(intervals);
-      }
+    if (next_command_request_counter++ > next_command_request_maximum)
+    {
+      //Serial.print("forced ok\n");
+      next_command_request_counter = 0;
+    }
+    if (intervals_remaining-- == 0)
+      isRunning = false;
+    else
+    {
+      rotationStepper.doStep(intervals);
+      xAxisStepper.doStep(intervals);
+    }
   }
 }
 
 void commitSteppers(double speedrate)
 {
   long deltaStepsX = xAxisStepper.delta;
-  if(deltaStepsX != 0L)
+  if (deltaStepsX != 0L)
   {
     xAxisStepper.enableStepper(true);
   }
 
   long deltaStepsY = rotationStepper.delta;
-  if(deltaStepsY != 0L)
+  if (deltaStepsY != 0L)
   {
     rotationStepper.enableStepper(true);
   }
@@ -166,10 +172,10 @@ void commitSteppers(double speedrate)
 
   double deltaDistanceX = xAxisStepper.targetPosition-xAxisStepper.getCurrentPosition();
   double deltaDistanceY = rotationStepper.targetPosition-rotationStepper.getCurrentPosition();
-  		
+
   // how long is our line length?
   double distance = sqrt(deltaDistanceX*deltaDistanceX+deltaDistanceY*deltaDistanceY);
-		  	  
+
   // compute number of intervals for this move
   double sub1 = (60000.* distance / speedrate);
   double sub2 = sub1 * 1000.;
@@ -191,7 +197,7 @@ void commitSteppers(double speedrate)
 //  Serial.print(masterSteps);
 //  Serial.print(" dDistX:");
 //  Serial.print(deltaDistanceX);
-//  Serial.print(" dDistY:");	
+//  Serial.print(" dDistY:");
 //  Serial.print(deltaDistanceY);
 //  Serial.print(" distance:");
 //  Serial.print(distance);
@@ -219,7 +225,7 @@ void get_command() // gets commands from serial connection and then calls up sub
     
     if (serial_char == '\n' || serial_char == '\r') // end of a command character
     { 
-	  next_command_request_counter = 0;
+      next_command_request_counter = 0;
       buffer[serial_count]=0;
       process_commands(buffer, serial_count);
       clear_buffer();
@@ -270,24 +276,23 @@ boolean getValue(char key, char command[], double* value)
 
 void check_for_version_controll(char command)
 {
-  if(command == 'V')
+  if (command == 'V')
   {
     Serial.print(VERSIONCODE);
     Serial.print("\n");
   }
 }
-    
 
 void process_commands(char command[], int command_length) // deals with standardized input from serial connection
 {
   
   double nVal;
   boolean hasNVal = getValue('N', command, &nVal);
-  //if(hasNVal) {Serial.println("linenumber detected");}; 
+  //if (hasNVal) {Serial.println("linenumber detected");};
   
   double getcs;
   boolean hasCS = getValue('*', command, &getcs);
-  //if(hasCS) {Serial.println("checksum detected");};
+  //if (hasCS) {Serial.println("checksum detected");};
   
   // checksum code from reprap wiki
   int cs = 0;
@@ -296,25 +301,25 @@ void process_commands(char command[], int command_length) // deals with standard
   cs = cs ^ command[j];
   cs &= 0xff;  // Defensive programming...
 
-  if(!(cs == (int)getcs || hasCS == false)) // if checksum does not match
+  if (!(cs == (int)getcs || hasCS == false)) // if checksum does not match
   {
     Serial.print("rs ");
-	Serial.print((int)getcs);
+    Serial.print((int)getcs);
     //Serial.print((int)nVal);
     Serial.print("\n");
-	//Serial.flush();
+    //Serial.flush();
   }
-  else	//continue if checksum matches or none detected
+  else  //continue if checksum matches or none detected
   {
     //Serial.println("checksum match ");
-    j=0;
+    j = 0;
     while (j < MAX_CMD_SIZE ) 
     {
       if ((command[j] == 'G') || command[j] == 'M') {break;}
       j++;
     }   
     
-    if(command_length == 1)
+    if (command_length == 1)
     {
       check_for_version_controll(command[0]);
     }
@@ -328,43 +333,51 @@ void process_commands(char command[], int command_length) // deals with standard
       
       double xVal;
       boolean hasXVal = getValue('X', command, &xVal);
-      if(hasXVal) xVal*=zoom*xscaling;                                 
+      if (hasXVal) xVal *= zoom*xscaling;
+
       double yVal;
       boolean hasYVal = getValue('Y', command, &yVal);
-      if(hasYVal) yVal*=zoom*yscaling;
+      if (hasYVal) yVal *= zoom*yscaling;
+
+      double zVal;
+      boolean hasZVal = getValue('Z', command, &zVal);
+
       double iVal;
       boolean hasIVal = getValue('I', command, &iVal);
-      if(hasIVal) iVal*=zoom;
+      if (hasIVal) iVal *= zoom;
+
       double jVal;
       boolean hasJVal = getValue('J', command, &jVal);
-      if(hasJVal) jVal*=zoom;
+      if (hasJVal) jVal *= zoom;
+
       double rVal;
       boolean hasRVal = getValue('R', command, &rVal);
-      if(hasRVal) rVal*=zoom;
+      if (hasRVal) rVal *= zoom;
+
       double pVal;
       boolean hasPVal = getValue('P', command, &pVal);
       
       getValue('F', command, &feedrate);
   
-      xVal+=currentOffsetX;
-      yVal+=currentOffsetY;
+      xVal += currentOffsetX;
+      yVal += currentOffsetY;
       
-      if(absoluteMode)
+      if (absoluteMode)
       {
-        if(hasXVal)
-          tempX=xVal;
-        if(hasYVal)
-          tempY=yVal;
+        if (hasXVal)
+          tempX = xVal;
+        if (hasYVal)
+          tempY = yVal;
       }
       else
       {
-        if(hasXVal)
-          tempX+=xVal;
-        if(hasYVal)
-          tempY+=yVal;
+        if (hasXVal)
+          tempX += xVal;
+        if (hasYVal)
+          tempY += yVal;
       }
       
-      switch(codenum)
+      switch (codenum)
       {
         case 0: // G0, Rapid positioning
           xAxisStepper.setTargetPosition(tempX);
@@ -378,25 +391,25 @@ void process_commands(char command[], int command_length) // deals with standard
           break;
         case 2: // G2, Clockwise arc
         case 3: // G3, Counterclockwise arc
-          if(hasIVal && hasJVal)
+          if (hasIVal && hasJVal)
           {
               double centerX=xAxisStepper.getCurrentPosition()+iVal;
               double centerY=rotationStepper.getCurrentPosition()+jVal;
               drawArc(centerX, centerY, tempX, tempY, (codenum==2));
           }
-          else if(hasRVal)
+          else if (hasRVal)
           {
             //drawRadius(tempX, tempY, rVal, (codenum==2));
           }
           break;
         case 4: // G4, Delay P ms
-          if(hasPVal)
+          if (hasPVal)
           {
              unsigned long endDelay = millis()+ (unsigned long)pVal;
              while(millis()<endDelay)
              {
                 delay(1);
-                if(servoEnabled)
+                if (servoEnabled)
                   SoftwareServo::refresh();
              }
           }
@@ -426,28 +439,14 @@ void process_commands(char command[], int command_length) // deals with standard
           break;
   
         case 300: // Servo Position
-          if(getValue('S', command, &value))
+          if (getValue('S', command, &value))
           {
-            servoEnabled=true;
-            if(value<0.)
-              value=0.;
-            else if(value>180.)
-            {
-              value=DEFAULT_PEN_UP_POSITION;
-              servo.write((int)value);
-              for(int i=0;i<100;i++)
-              {
-                  SoftwareServo::refresh();
-                  delay(2);
-              }           
-              servoEnabled=false;
-            }
-            servo.write((int)value);
+            moveServo(value);
           }
           break;
           
         case 400: // Propretary: Reset X-Axis-Stepper settings to new object diameter
-          if(getValue('S', command, &value))
+          if (getValue('S', command, &value))
           {
             xAxisStepper.resetSteppersForObjectDiameter(value);
             xAxisStepper.setTargetPosition(0.);
@@ -458,7 +457,7 @@ void process_commands(char command[], int command_length) // deals with standard
           break;
           
         case 401: // Propretary: Reset Y-Axis-Stepper settings to new object diameter
-          if(getValue('S', command, &value))
+          if (getValue('S', command, &value))
           {
             rotationStepper.resetSteppersForObjectDiameter(value);
             rotationStepper.setTargetPosition(0.);
@@ -469,13 +468,14 @@ void process_commands(char command[], int command_length) // deals with standard
           break;
           
        case 402: // Propretary: Reset Y-Axis-Stepper settings to new object diameter
-          if(getValue('S', command, &value))
+          if (getValue('S', command, &value))
           {
               zoom = value/100;
           }
           break;
+
        default:
-       break;
+         break;
   
       }
     }  
@@ -490,6 +490,25 @@ void process_commands(char command[], int command_length) // deals with standard
   //}
   
   }
+}
+
+void moveServo(double value)
+{
+  servoEnabled = true;
+  if (value < 0.)
+    value = 0.;
+  else if (value > 180.)
+  {
+    value = DEFAULT_PEN_UP_POSITION;
+    servo.write((int)value);
+    for(int i=0; i<100; i++)
+    {
+        SoftwareServo::refresh();
+        delay(2);
+    }
+    servoEnabled = false;
+  }
+  servo.write((int)value);
 }
 
 /* This code was ported from the Makerbot/ReplicatorG java sources */
@@ -516,7 +535,6 @@ void drawArc(double centerX, double centerY, double endpointX, double endpointY,
   bX = endpointX - centerX;
   bY = endpointY - centerY;
 
-  // Clockwise
   if (clockwise) {
     angleA = atan2(bY, bX);
     angleB = atan2(aY, aX);
@@ -534,7 +552,7 @@ void drawArc(double centerX, double centerY, double endpointX, double endpointY,
   if (angleB <= angleA)
     angleB += 2. * M_PI;
   angle = angleB - angleA;
-		
+
   // calculate a couple useful things.
   radius = sqrt(aX * aX + aY * aY);
   length = radius * angle;
@@ -554,24 +572,24 @@ void drawArc(double centerX, double centerY, double endpointX, double endpointY,
   
   for (s = 1; s <= steps; s++) {
     // Forwards for CCW, backwards for CW
-    if (!clockwise)
-	step = s;
+    if (clockwise)
+      step = steps - s;
     else
-	step = steps - s;
+      step = s;
 
     // calculate our waypoint.
     newPointX = centerX + radius * cos(angleA + angle * ((double) step / steps));
-    newPointY= centerY + radius	* sin(angleA + angle * ((double) step / steps));
+    newPointY= centerY + radius * sin(angleA + angle * ((double) step / steps));
 
     // start the move
     xAxisStepper.setTargetPosition(newPointX);
     rotationStepper.setTargetPosition(newPointY);
     commitSteppers(feedrate);
     
-    while(isRunning)
+    while (isRunning)
     {
       delay(1);
-      if(servoEnabled)
+      if (servoEnabled)
         SoftwareServo::refresh();
     };
   }

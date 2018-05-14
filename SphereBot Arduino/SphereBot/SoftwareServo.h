@@ -14,6 +14,7 @@ class SoftwareServo
     uint8_t max16;       // maximum pulse, 16uS units, 0-4ms range (default is 150)
     class SoftwareServo *next;
     static SoftwareServo* first;
+
   public:
     SoftwareServo();
     uint8_t attach(int);     // attach to a pin, sets pinMode, returns 0 on failure, won't
@@ -24,8 +25,8 @@ class SoftwareServo
     uint8_t attached();
     void setMinimumPulse(uint16_t);  // pulse length for 0 degrees in microseconds, 540uS default
     void setMaximumPulse(uint16_t);  // pulse length for 180 degrees in microseconds, 2400uS default
-    static void refresh();    // must be called at least every 50ms or so to keep servo alive
-                              // you can call more often, it won't happen more than once every 20ms
+    static void refresh();   // must be called at least every 50ms or so to keep servo alive
+                             // you can call more often, it won't happen more than once every 20ms
 };
 
 #endif
