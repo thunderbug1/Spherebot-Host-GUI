@@ -32,7 +32,7 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     void send_data();
     explicit MainWindow(QWidget *parent = 0);
@@ -42,7 +42,8 @@ public:
     bool LoadSettings();
     void SaveSettings();
     void initUI();
-    void initSateMachine();
+    void initStateMachine();
+
 public slots:
     void processReceivedData(QString line);
     void sendDataUI(QString data);
@@ -50,11 +51,9 @@ public slots:
     void refreshSendProgress(int value);
     void fitgraphicsView();
 //    void finishedLayer();
-
 //    void loadFileDialog();
-private slots:
-   // void hey(){qDebug()<<"hey"<<endl;}
 
+private slots:
     void resetPortList();
     void on_sendButton_released();
     void on_resetButton_clicked();
@@ -72,7 +71,7 @@ private slots:
 
     void on_sendString_textChanged(const QString &arg1);
 
-    // state functions
+    // State functions
     void entry_connected();
     void entry_try_connect();
     void entry_disconnected();
@@ -107,9 +106,7 @@ signals:
 public slots:
     void handle_port_error(QSerialPort::SerialPortError err);
 
-
 private:
-
     void setCurrentFile(const QString &fileName);
     void interpretGcode(QString code);
     void refreshLayerNames(QString file);
@@ -123,7 +120,7 @@ private:
     spherebot *bot;
     rxThread *Receiver;
     QGraphicsScene *scene;
-    QList<QString> layerNames;        //layerFile, layerColorString
+    QList<QString> layerNames;  // layerFile, layerColorString
     int layerIndex;
 
     QMessageBox *nextLayerMsgBox;
@@ -132,7 +129,7 @@ private:
     int penUpAngle;
     int penDownAngle;
 
-    QTimer FitInTimer;          //timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
+    QTimer FitInTimer;  // timer to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
     void extractOptions(QString file);
 
     QState *connected;
@@ -140,7 +137,7 @@ private:
     QState *disconnected;
     QState *idle, *sending, *abort, *stopped, *restart, *start_sending;
     QState *ask_for_restart, *ask_for_next_layer, *load_file_dialog;
-    QState *transmitting; //stopped or sending
+    QState *transmitting;  // stopped or sending
     QStateMachine machine;
 };
 

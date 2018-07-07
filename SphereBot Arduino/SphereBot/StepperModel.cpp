@@ -30,8 +30,8 @@ StepperModel::StepperModel(
         long minSC, long maxSC,
         double in_kStepsPerRevolution, int in_kMicroStepping)
 {
-  kStepsPerRevolution=in_kStepsPerRevolution;
-  kMicroStepping=in_kMicroStepping;
+  kStepsPerRevolution = in_kStepsPerRevolution;
+  kMicroStepping = in_kMicroStepping;
 
   dirPin = inDirPin;
   stepPin = inStepPin;
@@ -46,35 +46,32 @@ StepperModel::StepperModel(
   minStepCount=minSC;
   maxStepCount=maxSC;
   
-  pinMode(dirPin, OUTPUT);  
-  pinMode(stepPin, OUTPUT);  
-  pinMode(enablePin, OUTPUT);  
-  if((sleepPin >=0))
-  {
+  pinMode(dirPin, OUTPUT);
+  pinMode(stepPin, OUTPUT);
+  pinMode(enablePin, OUTPUT);
+
+  if (sleepPin >=0) {
     pinMode(sleepPin, OUTPUT);
     digitalWrite(sleepPin, HIGH);
   }
-  if((resetPin >=0))
-  {
+  if (resetPin >=0) {
     pinMode(resetPin, OUTPUT);   
     digitalWrite(resetPin, HIGH); 
   }
-  if(endStopPin>=0)
-    pinMode(endStopPin, INPUT); 
-  if((ms1Pin >=0))
-  {
-	  pinMode(ms1Pin, OUTPUT);  	
-	  digitalWrite(ms1Pin, vms1);    
+  if (endStopPin>=0) {
+    pinMode(endStopPin, INPUT);
   }
-  if((ms2Pin >=0))
-  {
-	  pinMode(ms2Pin, OUTPUT);  	
-	  digitalWrite(ms2Pin, vms1);    
+  if (ms1Pin >=0) {
+      pinMode(ms1Pin, OUTPUT);
+      digitalWrite(ms1Pin, vms1);
   }
-  if((ms3Pin >=0))
-  {
-	  pinMode(ms3Pin, OUTPUT);  	
-	  digitalWrite(ms3Pin, vms1);    
+  if (ms2Pin >=0) {
+      pinMode(ms2Pin, OUTPUT);
+      digitalWrite(ms2Pin, vms1);
+  }
+  if (ms3Pin >=0) {
+      pinMode(ms3Pin, OUTPUT);
+      digitalWrite(ms3Pin, vms1);
   }
 
   digitalWrite(dirPin, LOW);
@@ -91,7 +88,7 @@ void StepperModel::resetSteppersForObjectDiameter(double diameter)
 {
   // Calculate the motor steps required to move per mm.
   steps_per_mm = (int)((kStepsPerRevolution/(diameter*M_PI))*kMicroStepping+0.5);
-  if(endStopPin>=0)
+  if (endStopPin>=0)
   {
 #ifdef AUTO_HOMING
     autoHoming();
@@ -105,12 +102,10 @@ void StepperModel::resetSteppersForObjectDiameter(double diameter)
 long StepperModel::getStepsForMM(double mm)
 {
   long steps = (long)(steps_per_mm*mm);
-  
 //  Serial.print("steps for ");
 //  Serial.print(mm);
 //  Serial.print(" mm: ");
 //  Serial.println(steps);
-  
   return steps;
 }
 
@@ -126,8 +121,8 @@ void StepperModel::setTargetStepcount(long tsc)
      enableStepper(true);
    }
    if (delta < 0) {
-	delta = -delta;
-	direction = false;
+    delta = -delta;
+    direction = false;
    }
 }*/
 
@@ -142,14 +137,14 @@ void StepperModel::setTargetPosition(double pos)
      enableStepper(true);
    }
    if (delta < 0) {
-	delta = -delta;
-	direction = false;
+    delta = -delta;
+    direction = false;
    }
 }
 
 double StepperModel::getCurrentPosition()
 {
-    return (double)currentStepcount/steps_per_mm;
+  return (double)currentStepcount/steps_per_mm;
 }
 
 void StepperModel::enableStepper(bool enabled)
@@ -160,26 +155,28 @@ void StepperModel::enableStepper(bool enabled)
 void StepperModel::resetStepper()
 {
   enableStepper(false);
-  currentStepcount=0;
-  targetStepcount=0;
-  delta=0;  
+  currentStepcount = 0;
+  targetStepcount = 0;
+  delta = 0;
 }
 
 void StepperModel::doStep(long intervals)
 {
   counter += delta;
-  if (counter >= 0) {
+  if (counter >= 0)
+  {
     digitalWrite(dirPin, direction?HIGH:LOW);
     counter -= intervals;
-    if (direction) {
-      if(maxStepCount==0 || currentStepcount<=maxStepCount)
-      {
+    if (direction)
+    {
+      if (maxStepCount == 0 || currentStepcount<=maxStepCount) {
         digitalWrite(stepPin, HIGH);
         currentStepcount++;
       }
-    } else {
-      if(minStepCount==0 || currentStepcount>=minStepCount)
-      {
+    }
+    else
+    {
+      if (minStepCount == 0 || currentStepcount>=minStepCount) {
         digitalWrite(stepPin, HIGH);
         currentStepcount--;
       }
@@ -196,11 +193,11 @@ void StepperModel::autoHoming()
  
   while(digitalRead(endStopPin))
   {
-        digitalWrite(stepPin, HIGH);
-        digitalWrite(stepPin, LOW);
-        delay(1);
+    digitalWrite(stepPin, HIGH);
+    digitalWrite(stepPin, LOW);
+    delay(1);
   }
 
-  currentStepcount= minStepCount-16;
+  currentStepcount = minStepCount-16;
 }
 #endif

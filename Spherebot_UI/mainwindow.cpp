@@ -10,10 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     resetPortList();
 
-    //////////////////////////////////////////////////// for .svg display
+    // for SVG display
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
-    ////////////////////////////////////////////////////
 
     this->bot = new spherebot();
     Receiver = new rxThread(this->bot);
@@ -23,29 +22,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     layerIndex = 0;
 
-    connect(bot->port,  SIGNAL(readyRead()), Receiver,      SLOT(receiveData()));
-    connect(bot,        SIGNAL(dataSent(QString)),this,     SLOT(sendDataUI(QString)));
-    connect(bot,        SIGNAL(progressChanged(int)),this,  SLOT(refreshSendProgress(int)));
-    //connect(bot,        SIGNAL(fileTransmitted()),this,     SLOT(finishedTransmission()));
-    connect(Receiver,   SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
-    connect(Receiver,   SIGNAL(lineReceived(QString)),this->bot,  SLOT(processAnswer(QString)));
+    connect(bot->port, SIGNAL(readyRead()), Receiver, SLOT(receiveData()));
 
-    connect(bot->port,  SIGNAL(error(QSerialPort::SerialPortError)),this,SLOT(handle_port_error(QSerialPort::SerialPortError)));
+    connect(bot, SIGNAL(dataSent(QString)),this, SLOT(sendDataUI(QString)));
+    connect(bot, SIGNAL(progressChanged(int)),this, SLOT(refreshSendProgress(int)));
+    //connect(bot, SIGNAL(fileTransmitted()),this, SLOT(finishedTransmission()));
+
+    connect(Receiver, SIGNAL(lineReceived(QString)),this, SLOT(processReceivedData(QString)));
+    connect(Receiver, SIGNAL(lineReceived(QString)),this->bot, SLOT(processAnswer(QString)));
+
+    connect(bot->port, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(handle_port_error(QSerialPort::SerialPortError)));
 
     initUI();
-    initSateMachine();
+    initStateMachine();
 
     if(LoadSettings())
     {
         FitInTimer.setInterval(10);
         FitInTimer.setSingleShot(true);
-        connect(&FitInTimer,SIGNAL(timeout()),this,SLOT(fitgraphicsView()));
+        connect(&FitInTimer, SIGNAL(timeout()), this, SLOT(fitgraphicsView()));
         FitInTimer.start();
     }
 
     setWindowTitle("Spherebot Controll");
 
-    qDebug()<<"mainwindow initialised: ";
+    qDebug()<< "mainwindow initialised: ";
 }
 
 void MainWindow::fitgraphicsView()      ////function to trigger the fitIn function for the graphics view. Actually this shouldn´t be necessary!
@@ -54,7 +55,7 @@ void MainWindow::fitgraphicsView()      ////function to trigger the fitIn functi
     ui->graphicsView->fitInView(item);
 
     ui->graphicsView->ensureVisible(item);
-    qDebug()<<"fit in";
+    qDebug()<< "fit in";
 }
 
 void MainWindow::entry_connected()
@@ -116,23 +117,23 @@ void MainWindow::entry_disconnected()
 void MainWindow::entry_transmitting()
 {
     qDebug()<< "entry_transmitting"<< endl;
-    ui->loadFileButton->setText("Abort");   //used as Abort button
+    ui->loadFileButton->setText("Abort");  // used as Abort button
     ui->fileSendProgressBar->setEnabled(true);
     ui->restartButton->setEnabled(true);
-    ui->loadFileButton->setEnabled(true);   //=abort button
+    ui->loadFileButton->setEnabled(true);  // =abort button
 }
 
-void MainWindow::entry_sending()    //substate of transmitting
+void MainWindow::entry_sending()  // substate of transmitting
 {
     qDebug()<< "entry sending"<< endl;
-    connect(this->bot,  SIGNAL(dataSent(QString)),this,         SLOT(interpretSentString(QString)));
+    connect(this->bot, SIGNAL(dataSent(QString)), this, SLOT(interpretSentString(QString)));
     ui->controllBox->setEnabled(false);
     ui->sendFileButton->setText("Stop");
     bot->sendingFile = true;
     statusBar()->showMessage(tr("Sending File"));
 }
 
-void MainWindow::entry_start_sending()    //substate of transmitting
+void MainWindow::entry_start_sending()  // substate of transmitting
 {
     qDebug()<< "entry_start_sending"<< endl;
     bot->resetState();
@@ -140,14 +141,14 @@ void MainWindow::entry_start_sending()    //substate of transmitting
     bot->sendNext();
 }
 
-void MainWindow::leave_sending()    //substate of transmitting
+void MainWindow::leave_sending()  // substate of transmitting
 {
     qDebug()<< "leave sending"<< endl;
-    disconnect(this->bot,SIGNAL(dataSent(QString)),this,SLOT(interpretSentString(QString)));
+    disconnect(this->bot, SIGNAL(dataSent(QString)), this, SLOT(interpretSentString(QString)));
     bot->sendingFile = false;
 }
 
-void MainWindow::entry_stopped()    //substate of transmitting
+void MainWindow::entry_stopped()  // substate of transmitting
 {
     qDebug()<< "entry_stopped"<< endl;
     ui->sendFileButton->setText("Continue");
@@ -168,7 +169,7 @@ void MainWindow::entry_idle()
     ui->saveFileButton->setEnabled(false);
     ui->fileSendProgressBar->setEnabled(false);
 
-    bot->send("M 18");      //disable motors
+    bot->send("M18");  // disable motors
 }
 
 void MainWindow::entry_abort()
@@ -246,87 +247,84 @@ void MainWindow::entry_load_file_dialog()
     }
 }
 
-void MainWindow::initSateMachine()
+void MainWindow::initStateMachine()
 {
     connected = new QState();
     try_connect = new QState();
     disconnected = new QState();
 
-    transmitting = new QState(connected);   //transmitting means sending or stopped
-    sending =      new QState(transmitting);
-    stopped =      new QState(transmitting);
+    transmitting = new QState(connected);  // transmitting means sending or stopped
+    sending = new QState(transmitting);
+    stopped = new QState(transmitting);
 
-    idle =             new QState(connected);
-    abort =            new QState(connected);
-    ask_for_restart =  new QState(connected);
-    restart =          new QState(connected);
-    ask_for_next_layer=new QState(connected);
+    idle = new QState(connected);
+    abort = new QState(connected);
+    ask_for_restart = new QState(connected);
+    restart = new QState(connected);
+    ask_for_next_layer = new QState(connected);
     load_file_dialog = new QState(connected);
-    start_sending =    new QState(connected);
+    start_sending = new QState(connected);
 
-    /////////////////////////////////////////////////// Transitions
+    // Transitions
 
-    connected->addTransition(ui->connectButton,     SIGNAL(clicked()),disconnected);
-    connected->addTransition(this,SIGNAL(force_disconnect()),disconnected);
-    disconnected->addTransition(ui->connectButton,  SIGNAL(clicked()),try_connect);
-    try_connect->addTransition(this,         SIGNAL(successfully_connected()),connected);
-    try_connect->addTransition(this,         SIGNAL(not_successfully_connected()),disconnected);
+    connected->addTransition(ui->connectButton, SIGNAL(clicked()), disconnected);
+    connected->addTransition(this, SIGNAL(force_disconnect()), disconnected);
+    disconnected->addTransition(ui->connectButton, SIGNAL(clicked()), try_connect);
+    try_connect->addTransition(this, SIGNAL(successfully_connected()), connected);
+    try_connect->addTransition(this, SIGNAL(not_successfully_connected()), disconnected);
 
     connected->setInitialState(idle);
 
-    idle->addTransition(ui->sendFileButton,SIGNAL(clicked()),start_sending);
-    idle->addTransition(ui->loadFileButton,SIGNAL(clicked()),load_file_dialog);
+    idle->addTransition(ui->sendFileButton, SIGNAL(clicked()), start_sending);
+    idle->addTransition(ui->loadFileButton, SIGNAL(clicked()), load_file_dialog);
 
-    transmitting->addTransition(ui->loadFileButton, SIGNAL(clicked()),abort);
-    transmitting->addTransition(ui->restartButton,  SIGNAL(clicked()),restart);
-    //
-    sending->addTransition(ui->sendFileButton,SIGNAL(clicked()),stopped);
-    sending->addTransition(this->bot,         SIGNAL(fileTransmitted()),ask_for_restart);
-    sending->addTransition(this->bot,         SIGNAL(layerTransmitted()),ask_for_next_layer);
+    transmitting->addTransition(ui->loadFileButton, SIGNAL(clicked()), abort);
+    transmitting->addTransition(ui->restartButton, SIGNAL(clicked()), restart);
 
-    stopped->addTransition(ui->sendFileButton,SIGNAL(clicked()),start_sending);
-    //
-    start_sending->addTransition(start_sending,SIGNAL(entered()),sending);
+    sending->addTransition(ui->sendFileButton, SIGNAL(clicked()), stopped);
+    sending->addTransition(this->bot, SIGNAL(fileTransmitted()), ask_for_restart);
+    sending->addTransition(this->bot, SIGNAL(layerTransmitted()), ask_for_next_layer);
 
-    idle->addTransition(restartLayerMsgBox,SIGNAL(accepted()),restart);
-    idle->addTransition(restartLayerMsgBox,SIGNAL(rejected()),idle);
+    stopped->addTransition(ui->sendFileButton, SIGNAL(clicked()), start_sending);
 
-    idle->addTransition(this,SIGNAL(restart_print()),restart);
-    ask_for_restart->addTransition(this,SIGNAL(restart_print()),restart);
-    ask_for_restart->addTransition(this,SIGNAL(abort_restart_print()),abort);
-    idle->addTransition(this,SIGNAL(abort_restart_print()),abort);
+    start_sending->addTransition(start_sending, SIGNAL(entered()), sending);
 
-    idle->addTransition(this,SIGNAL(print_next_layer()),sending);
-    ask_for_next_layer->addTransition(this,SIGNAL(print_next_layer()),sending);
-    idle->addTransition(this,SIGNAL(abort_print()),abort);
-    ask_for_next_layer->addTransition(this,SIGNAL(abort_print()),abort);
-    //idle->addTransition(nextLayerMsgBox,SIGNAL(accepted()),sending);
-    //idle->addTransition(nextLayerMsgBox,SIGNAL(rejected()),abort);
+    idle->addTransition(restartLayerMsgBox, SIGNAL(accepted()), restart);
+    idle->addTransition(restartLayerMsgBox, SIGNAL(rejected()), idle);
 
-    load_file_dialog->addTransition(load_file_dialog,SIGNAL(entered()),idle);
+    idle->addTransition(this, SIGNAL(restart_print()), restart);
+    ask_for_restart->addTransition(this, SIGNAL(restart_print()), restart);
+    ask_for_restart->addTransition(this, SIGNAL(abort_restart_print()), abort);
+    idle->addTransition(this, SIGNAL(abort_restart_print()), abort);
+
+    idle->addTransition(this, SIGNAL(print_next_layer()), sending);
+    ask_for_next_layer->addTransition(this, SIGNAL(print_next_layer()), sending);
+    idle->addTransition(this, SIGNAL(abort_print()), abort);
+    ask_for_next_layer->addTransition(this, SIGNAL(abort_print()), abort);
+    //idle->addTransition(nextLayerMsgBox, SIGNAL(accepted()), sending);
+    //idle->addTransition(nextLayerMsgBox, SIGNAL(rejected()), abort);
+
+    load_file_dialog->addTransition(load_file_dialog, SIGNAL(entered()), idle);
 
     abort->addTransition(abort,SIGNAL(entered()),idle);
 
-    restart->addTransition(restart,SIGNAL(entered()),start_sending);
+    restart->addTransition(restart, SIGNAL(entered()), start_sending);
 
-    /////////////////////////////////////////////////// Functions executed in states
+    // Functions executed in states
 
-    connect(connected,      SIGNAL(entered()),this,SLOT(entry_connected()));
-    connect(try_connect,    SIGNAL(entered()),this,SLOT(entry_try_connect()));
-    connect(disconnected,   SIGNAL(entered()),this,SLOT(entry_disconnected()));
-    connect(transmitting,   SIGNAL(entered()),this,SLOT(entry_transmitting()));
-    connect(idle,           SIGNAL(entered()),this,SLOT(entry_idle()));
-    connect(sending,        SIGNAL(entered()),this,SLOT(entry_sending()));
-    connect(start_sending,  SIGNAL(entered()),this,SLOT(entry_start_sending()));
-    connect(stopped,        SIGNAL(entered()),this,SLOT(entry_stopped()));
-    connect(restart,        SIGNAL(entered()),this,SLOT(entry_restart()));
-    connect(ask_for_restart,SIGNAL(entered()),this,SLOT(entry_ask_for_restart()));
-    connect(ask_for_next_layer,SIGNAL(entered()),this,SLOT(entry_ask_for_next_layer()));
-    connect(load_file_dialog,SIGNAL(entered()),this,SLOT(entry_load_file_dialog()));
-
-    connect(sending,        SIGNAL(exited()), this,SLOT(leave_sending()));
-
-    ///////////////////////////////////////////////////
+    connect(connected,      SIGNAL(entered()), this, SLOT(entry_connected()));
+    connect(try_connect,    SIGNAL(entered()), this, SLOT(entry_try_connect()));
+    connect(disconnected,   SIGNAL(entered()), this, SLOT(entry_disconnected()));
+    connect(transmitting,   SIGNAL(entered()), this, SLOT(entry_transmitting()));
+    connect(idle,           SIGNAL(entered()), this, SLOT(entry_idle()));
+    connect(sending,        SIGNAL(entered()), this, SLOT(entry_sending()));
+    connect(start_sending,  SIGNAL(entered()), this, SLOT(entry_start_sending()));
+    connect(stopped,        SIGNAL(entered()), this, SLOT(entry_stopped()));
+    connect(restart,        SIGNAL(entered()), this, SLOT(entry_restart()));
+    connect(ask_for_restart,SIGNAL(entered()), this, SLOT(entry_ask_for_restart()));
+    connect(ask_for_next_layer,SIGNAL(entered()), this, SLOT(entry_ask_for_next_layer()));
+    connect(load_file_dialog,SIGNAL(entered()), this, SLOT(entry_load_file_dialog()));
+    connect(sending,        SIGNAL(exited()), this, SLOT(leave_sending()));
 
     machine.addState(connected);
     machine.addState(disconnected);
@@ -343,25 +341,25 @@ void MainWindow::initUI()
                                       "The Layer has been finished!\nplease insert the tool for the layer: " + QString::number(layerIndex),
                                       QMessageBox::Ok|QMessageBox::Abort);
 
-    //nextLayerMsgBox->addButton("OK",QMessageBox::AcceptRole);
-    //nextLayerMsgBox->addButton("Abort",QMessageBox::RejectRole);
+    //nextLayerMsgBox->addButton("OK", QMessageBox::AcceptRole);
+    //nextLayerMsgBox->addButton("Abort", QMessageBox::RejectRole);
 
     restartLayerMsgBox = new QMessageBox(QMessageBox::Information,
                                          "Restart?",
                                          "Do you want to restart the print?",
                                          QMessageBox::Ok|QMessageBox::Abort);
-    //restartLayerMsgBox->addButton("OK",QMessageBox::RejectRole);   //for some reason rejectrole and acceptrole need to be switched
-    //restartLayerMsgBox->addButton("Abort",QMessageBox::AcceptRole);
+    //restartLayerMsgBox->addButton("OK", QMessageBox::RejectRole);   //for some reason rejectrole and acceptrole need to be switched
+    //restartLayerMsgBox->addButton("Abort", QMessageBox::AcceptRole);
 
-    connect(ui->undoButton,SIGNAL(clicked()),ui->fileTextEdit,SLOT(undo()));
-    connect(ui->redoButton,SIGNAL(clicked()),ui->fileTextEdit,SLOT(redo()));
+    connect(ui->undoButton,SIGNAL(clicked()), ui->fileTextEdit, SLOT(undo()));
+    connect(ui->redoButton,SIGNAL(clicked()), ui->fileTextEdit, SLOT(redo()));
 
-    connect(ui->fileTextEdit,SIGNAL(undoAvailable(bool)),ui->saveFileButton,SLOT(setEnabled(bool)));
-    connect(ui->fileTextEdit,SIGNAL(undoAvailable(bool)),ui->undoButton,SLOT(setEnabled(bool)));
-    connect(ui->fileTextEdit,SIGNAL(redoAvailable(bool)),ui->redoButton,SLOT(setEnabled(bool)));
+    connect(ui->fileTextEdit,SIGNAL(undoAvailable(bool)), ui->saveFileButton, SLOT(setEnabled(bool)));
+    connect(ui->fileTextEdit,SIGNAL(undoAvailable(bool)), ui->undoButton, SLOT(setEnabled(bool)));
+    connect(ui->fileTextEdit,SIGNAL(redoAvailable(bool)), ui->redoButton, SLOT(setEnabled(bool)));
 
-    connect(ui->eggSlider,SIGNAL(valueChanged(int)),ui->eggRotationBox,SLOT(setValue(int)));
-    connect(ui->penSlider,SIGNAL(valueChanged(int)),ui->penRotationBox,SLOT(setValue(int)));
+    connect(ui->eggSlider,SIGNAL(valueChanged(int)), ui->eggRotationBox, SLOT(setValue(int)));
+    connect(ui->penSlider,SIGNAL(valueChanged(int)), ui->penRotationBox, SLOT(setValue(int)));
 
     //ui->baudBox->setEnabled(true);
 
@@ -370,7 +368,7 @@ void MainWindow::initUI()
 
 MainWindow::~MainWindow()
 {
-    qDebug()<<"delete main window";
+    qDebug()<< "delete main window";
     SaveSettings();
     delete ui;
 }
@@ -383,7 +381,6 @@ void MainWindow::handle_port_error(QSerialPort::SerialPortError err)
         resetPortList();
     }
 }
-///////////////////////////////////////////////////////////////////////////////
 
 bool MainWindow::LoadSettings()
 {
@@ -392,7 +389,7 @@ bool MainWindow::LoadSettings()
     settings.beginGroup("settings");
     curFile = settings.value("fileName", "").toString();
     curDir = settings.value("currentDirectory", "").toString();
-    qDebug() << "curdir"<< curDir<<endl;
+    qDebug()<< "curdir"<< curDir<< endl;
     if(!curFile.isEmpty())
     {
         if(QFile::exists(curFile))
@@ -402,7 +399,7 @@ bool MainWindow::LoadSettings()
             returnvalue = true;
         }
     }
-    qDebug()<<"load: "<<curFile;
+    qDebug()<< "load: "<< curFile;
     QString SavedPortName = settings.value("PortName", "").toString();
     QSerialPortInfo info;
     portList = info.availablePorts();
@@ -415,21 +412,19 @@ bool MainWindow::LoadSettings()
         }
     }
     settings.endGroup();
-    qDebug()<<"settings loaded: ";
+    qDebug()<< "settings loaded: ";
     return returnvalue;
 }
 
 void MainWindow::SaveSettings()
 {
-    QSettings settings("thunderbug","SpherebotSettings");
+    QSettings settings("thunderbug", "SpherebotSettings");
     settings.beginGroup("settings");
     settings.setValue("fileName", curFile);
-    settings.setValue("currentDirectory",curDir.absolutePath());
+    settings.setValue("currentDirectory", curDir.absolutePath());
     settings.setValue("PortName", ui->portBox->currentText());
     settings.endGroup();
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 int getOption(QString string,QString searchString)
 {
@@ -439,9 +434,9 @@ int getOption(QString string,QString searchString)
         int i = index;
         while(string.at(i) != ' ')
             i++;
-        qDebug()<<"index: "<<index+searchString.length()<<"i"<<i;
-        QString subsection = string.mid(index+searchString.length(),(i - (index+searchString.length())));
-        qDebug()<<subsection;
+        qDebug()<< "index: "<< index+searchString.length()<< "i"<< i;
+        QString subsection = string.mid(index+searchString.length(), (i - (index+searchString.length())));
+        qDebug()<< subsection;
         return subsection.toInt();
     }
     return -1;
@@ -449,15 +444,15 @@ int getOption(QString string,QString searchString)
 
 void MainWindow::extractOptions(QString file)
 {
-    penUpAngle = getOption(file,"--pen-up-angle=");
-    penDownAngle = getOption(file,"--pen-down-angle=");
-    qDebug()<<"penup: "<<penUpAngle;
-    qDebug()<<"pendown: "<<penDownAngle;
+    penUpAngle = getOption(file, "--pen-up-angle=");
+    penDownAngle = getOption(file, "--pen-down-angle=");
+    qDebug()<< "penup: "<< penUpAngle;
+    qDebug()<< "pendown: "<< penDownAngle;
 }
 
 void MainWindow::loadFile(const QString &fileName)
 {
-    qDebug()<<"loading file: "<<fileName;
+    qDebug()<< "loading file: "<< fileName;
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
@@ -475,11 +470,12 @@ void MainWindow::loadFile(const QString &fileName)
     interpretGcode(code);
     refreshLayerNames(code);
     ui->fileTextEdit->setText(code);
-    qDebug()<<removeComments(code);
+    //qDebug()<< removeComments(code);
 
+    // show the SVG file, if available
     scene->clear();
     QString picPath = QFileInfo(fileName).absoluteFilePath();
-    picPath.chop(5);        //cut .gcode
+    picPath.chop(5);  // cut .gcode suffix
     picPath.append("svg");
     QGraphicsSvgItem *item = new QGraphicsSvgItem(picPath);
     scene->addItem(item);
@@ -511,24 +507,24 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::interpretGcode(QString code)       //for future gcode interpretation
+void MainWindow::interpretGcode(QString code)  //for future gcode interpretation
 {
     code = removeComments(code);
     QStringList lines = code.split("\n");
     QStringList line;
-    int state = 0; // 0 = pen up , 1 = pen down
+    int state = 0;  // 0 = pen up , 1 = pen down
     for(int i = 0;i<lines.length();i++)
     {
-        //qDebug()<<lines[i];
+        //qDebug()<< lines[i];
         line = lines[i].split(" ");
         if(lines[i].contains("M300 S" + QString::number(penUpAngle) +".00"))
             state = 0;
         else if(lines[i].contains("M300 S" + QString::number(penDownAngle) +".00"))
             state = 1;
 
-        if(state == 1)//drawing
+        if(state == 1)  // drawing
         {
-            //to do (Gcode drawer widget)
+            // to do (Gcode drawer widget)
         }
     }
 }
@@ -539,18 +535,18 @@ void MainWindow::refreshLayerNames(QString file)
     int layerchange = 0;
     for(int i=0;i<lines.size();i++)
     {
-        qDebug()<<lines[i];
+        //qDebug()<< lines[i];
         if(lines[i].contains("M01"))
         {
             if(layerchange != 0)
             {
-                qDebug()<<"This is the Split Line: " << lines[i].split("'");
+                qDebug()<< "This is the Split Line: "<< lines[i].split("'");
                 layerNames.append(lines[i].split("'")[1]);
             }
             layerchange++;
         }
     }
-    qDebug()<<"This are the layernames: "<< layerNames;
+    qDebug()<< "This are the layernames: "<< layerNames;
 }
 
 void MainWindow::processReceivedData(QString line)
@@ -570,43 +566,42 @@ void MainWindow::refreshSendProgress(int value)
 void MainWindow::interpretSentString(QString string)
 {
     QStringList list = string.split(" ");
-    //qDebug()<<"string is : "<<string;
+    //qDebug()<< "string is : "<< string;
     for(int i = 0;i<list.size();i++)
     {
         if(!list[i].isEmpty())
         {
             if (list[i].startsWith('X'))
             {
-                //qDebug()<<"setting eggslidervalue: ";
+                //qDebug()<< "setting eggslidervalue: ";
                 ui->eggSlider->setValue(list[i].remove(0,1).toDouble());
             }
             else if (list[i].startsWith('Y'))
             {
-                //qDebug()<<"setting penslidervalue";
+                //qDebug()<< "setting penslidervalue";
                 ui->penSlider->setValue(list[i].remove(0,1).toDouble());
             }
             else if (list[i].startsWith('M'))
             {
                 if(list[i].remove(0,1) == "300")
                 {
-                    //qDebug()<<"setting servoSlider";
+                    //qDebug()<< "setting servoSlider";
                     ui->servoSlider->setValue(list[i+1].remove(0,1).toDouble());
                 }
                 else if(list[i].remove(0,1) == "400")
                 {
-                    // qDebug()<<"setting diameterSlider";
+                    //qDebug()<< "setting diameterSlider";
                     ui->diameterSlider->setValue(list[i+1].remove(0,1).toDouble());
                 }
             }
             else if (list[i].startsWith('F'))
             {
-                //qDebug()<<"setting servoFeedrateSlider";
+                //qDebug()<< "setting servoFeedrateSlider";
                 ui->servoFeedrateSlider->setValue(list[i].remove(0,1).toDouble());
             }
         }
     }
 }
-///////////////////////////////////////////////////////////////////
 
 void MainWindow::resetPortList()
 {
@@ -628,7 +623,7 @@ void MainWindow::sendDataUI(QString data)
 {
     while(data.endsWith('\n')) data.chop(1);
 
-    ui->txList->insertItem(0,data);
+    ui->txList->insertItem(0, data);
     delete ui->txList->item(MAXLISTITEMS);
 }
 
@@ -638,7 +633,7 @@ void MainWindow::on_sendString_editingFinished()
     {
         if(!bot->send(ui->sendString->text()))
         {
-            qDebug()<<bot->port->errorString();
+            qDebug()<< bot->port->errorString();
             sendDataUI("Error while sending Data!");
         }
     }
@@ -658,19 +653,28 @@ void MainWindow::on_servoSlider_sliderMoved(int position)
 
 void MainWindow::on_servospinBox_valueChanged(int arg1)
 {
+    if(!machine.configuration().contains(sending))
+    {
+        bot->send("M300 S" + QString::number(arg1));
+    }
     ui->servoSlider->setValue(arg1);
-    bot->send("M300 S" + QString::number(arg1));
 }
 
 void MainWindow::on_penRotationBox_valueChanged(int arg1)
 {
-    bot->send("G1 Y" + QString::number((double)arg1));
+    if(!machine.configuration().contains(sending))
+    {
+        bot->send("G1 Y" + QString::number((double)arg1));
+    }
     ui->penSlider->setValue(arg1);
 }
 
 void MainWindow::on_eggRotationBox_valueChanged(int arg1)
 {
-    bot->send("G1 X" + QString::number((double)arg1));
+    if(!machine.configuration().contains(sending))
+    {
+        bot->send("G1 X" + QString::number((double)arg1));
+    }
     ui->eggSlider->setValue(arg1);
 }
 

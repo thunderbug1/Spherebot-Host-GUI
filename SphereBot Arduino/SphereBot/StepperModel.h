@@ -24,7 +24,6 @@
 class StepperModel
 {
 private:
-  
   int dirPin;
   int stepPin;
   int enablePin;
@@ -68,7 +67,6 @@ public:
 #ifdef AUTO_HOMING
   void autoHoming();
 #endif
-
   
   void setTargetPosition(double pos);
   double getCurrentPosition();

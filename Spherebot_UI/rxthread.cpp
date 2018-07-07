@@ -7,8 +7,8 @@ rxThread::rxThread(spherebot *uibot)
 
 rxThread::~rxThread()
 {
-
 }
+
 void rxThread::receiveData()
 {
     if(bot->port->canReadLine())
@@ -16,11 +16,11 @@ void rxThread::receiveData()
         while(bot->port->canReadLine())
         {
             line = bot->port->readLine(1024);
-            //qDebug()<<"receiving raw: " << line << endl;/////////////////////////////
+            //qDebug()<< "receiving raw: "<< line<< endl;
             while(line.endsWith('\n')) line.chop(1);
             if( line != "")
             {
-                qDebug()<<"receiving: " << line << endl;/////////////////////////////
+                qDebug()<< "receiving: "<< line<< endl;
                 emit lineReceived(line);
             }
         }
@@ -29,6 +29,6 @@ void rxThread::receiveData()
 
 void rxThread::run()
 {
-    qDebug()<<"start Receiver";
+    qDebug()<< "start Receiver";
     line = "";
 }

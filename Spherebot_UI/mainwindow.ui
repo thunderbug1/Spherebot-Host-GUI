@@ -40,8 +40,8 @@
      <rect>
       <x>20</x>
       <y>60</y>
-      <width>551</width>
-      <height>231</height>
+      <width>531</width>
+      <height>241</height>
      </rect>
     </property>
     <property name="title">
@@ -58,8 +58,8 @@
       <rect>
        <x>8</x>
        <y>0</y>
-       <width>609</width>
-       <height>191</height>
+       <width>499</width>
+       <height>186</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -425,10 +425,10 @@
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>10</x>
        <y>200</y>
-       <width>539</width>
-       <height>48</height>
+       <width>501</width>
+       <height>33</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -453,12 +453,12 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>461</width>
-      <height>48</height>
+      <width>531</width>
+      <height>32</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <widget class="QPushButton" name="connectButton">
        <property name="text">
         <string>Connect</string>
@@ -468,10 +468,10 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QComboBox" name="portBox"/>
      </item>
-     <item>
+     <item row="0" column="2">
       <widget class="QPushButton" name="resetButton">
        <property name="text">
         <string>Reset portlist</string>
@@ -506,20 +506,20 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>290</y>
-      <width>541</width>
-      <height>211</height>
+      <y>310</y>
+      <width>530</width>
+      <height>201</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_11">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Transceived Data</string>
+            <string>Sent Data</string>
            </property>
           </widget>
          </item>
@@ -556,14 +556,14 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>10</y>
-      <width>642</width>
+      <x>590</x>
+      <y>20</y>
+      <width>411</width>
       <height>491</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_12">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_8"/>
@@ -645,7 +645,7 @@
        </item>
       </layout>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QProgressBar" name="fileSendProgressBar">
        <property name="enabled">
         <bool>false</bool>
@@ -663,9 +663,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>1040</x>
-      <y>10</y>
-      <width>441</width>
+      <x>1020</x>
+      <y>20</y>
+      <width>461</width>
       <height>491</height>
      </rect>
     </property>
@@ -725,6 +725,7 @@
    <zorder>layoutWidget</zorder>
    <zorder>graphicsView</zorder>
    <zorder>layoutWidget</zorder>
+   <zorder></zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
@@ -892,4 +893,21 @@
    </hints>
   </connection>
  </connections>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>10</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
 </ui>

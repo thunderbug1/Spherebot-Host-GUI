@@ -16,6 +16,7 @@
 class spherebot : public QObject
 {
     Q_OBJECT
+
 public:
     QSerialPort *port;
 
@@ -26,6 +27,7 @@ public:
     explicit spherebot(QObject *parent = 0);
 
     bool sendingFile;
+
 signals:
     void dataSent(QString data);
 
@@ -43,8 +45,10 @@ public slots:
     void resetState();
     void set(QString intextfile);
     void sendNext();
+
 private slots:
     void trySendBufferLine();
+
 private:
 
     bool bot_connected;
